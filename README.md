@@ -1,158 +1,122 @@
-# Astra Chess ♞
+# Astra Chess Engine ♞
 
-> **A fully hand-crafted chess engine built from scratch in TypeScript — running live in your browser with no server required.**
+> **A high-performance custom chess engine written in C++ from scratch, compiled to WebAssembly, and running natively in your browser.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Play%20Now-629924?style=for-the-badge)](https://arpitsingh2492.github.io/astra-chess/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
+[![WebAssembly](https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white)](https://webassembly.org/)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 
 ---
 
-## ✨ What is Astra?
+## ✨ Overview
 
-Astra Chess is a **complete chess application** — both the game engine and the UI — written entirely from scratch. No chess libraries (like Stockfish) are used anywhere. Every rule, every move, every evaluation score is computed by code I wrote.
+Astra Chess is a **high-speed, handcrafted chess engine** built fundamentally in **C++**. It avoids any external chess libraries (like Stockfish or chess.js). Every rule, move generation, and evaluation heuristic is computed by custom logic written in C++. 
 
-This project was built as a showcase of **systems programming** and **algorithm design** skills, and demonstrates how complex AI search algorithms work in practice.
+To bring this native performance to the web without requiring a backend server, the engine is compiled into **WebAssembly (WASM)** using Emscripten. The beautiful UI is constructed in React/TypeScript, which interfaces with the compiled C++ engine inside a Web Worker.
+
+This project showcases **systems programming**, **advanced search algorithms**, and **C++ / WebAssembly interop**.
 
 ---
 
-## 🔬 Engine Architecture
+## 🔬 Core Engine Architecture (C++)
 
-The engine runs in a **Web Worker** (separate thread) so the UI is always smooth and responsive while the engine searches.
+The engine is engineered for maximum node calculation speed, heavily utilizing bitwise operations and efficient memory management in C++17.
 
-### Search
+### Search Algorithm (`engine/src/search.cpp`)
 | Technique | Description |
 |---|---|
-| **Alpha-Beta Pruning** | Core minimax tree search with α-β cutoffs — eliminates branches that cannot affect the result |
-| **Iterative Deepening** | Searches depth 1, 2, 3... up to a time limit — allows anytime termination with best available move |
-| **Quiescence Search** | Extends search at leaf nodes for captures to avoid the horizon effect |
-| **Move Ordering** | MVV-LVA (Most Valuable Victim – Least Valuable Attacker) for capture ordering; improves pruning efficiency |
+| **Alpha-Beta Pruning** | The core minimax tree search optimized with strict α-β cutoffs, drastically reducing the search space. |
+| **Iterative Deepening** | Progressively searches deeper plies until a time limit is hit, ensuring the engine always has a "best move" ready. |
+| **Quiescence Search** | Explores noisy leaf nodes (all captures) to avoid the horizon effect and ensure tactical stability. |
+| **MVV-LVA Ordering** | "Most Valuable Victim – Least Valuable Attacker" heuristic ensures captures are checked in optimal order for maximum pruning efficiency. |
 
-### Evaluation
-| Feature | Description |
+### Board & Move Generation (`engine/src/movegen.cpp`)
+| Feature | Implementation |
 |---|---|
-| **Material Count** | Standard piece values (P=100, N=320, B=330, R=500, Q=900) |
-| **Piece-Square Tables** | Bonus/penalty per piece per square — encourages center control, king safety |
-| **King Safety** | Penalises open files near king, rewards castled position |
+| **Move Generation** | Completely custom pseudo-legal and legal move generation algorithms. Handles all chess rules (En Passant, Castling, Promotions). |
+| **State Reversibility** | Fast `executeMove` and `undoMove` functions that use a lightweight snapshot history to traverse the search tree without expensive board cloning. |
+| **Check Detection** | Optimized `isSquareAttacked` raycasting and step-checks to rapidly verify king safety. |
 
-### Rules
-| Rule | Implemented |
+### Evaluation (`engine/src/eval.cpp`)
+| Feature | Implementation |
 |---|---|
-| En passant | ✅ |
-| Castling (K-side & Q-side) | ✅ |
-| Pawn promotion (any piece) | ✅ |
-| 50-move rule | ✅ |
-| Threefold repetition | ✅ |
-| Stalemate | ✅ |
-| Check / Checkmate detection | ✅ |
+| **Material Evaluation** | Weighted standard pieces: P=100, N=320, B=330, R=500, Q=900. |
+| **Piece-Square Tables (PST)** | Positional static evaluation rewarding center control for knights, open diagonals for bishops, and back-rank safety for kings. |
 
 ---
 
-## 🎮 Features
+## 🚀 Building & Running Locally
 
-- **Three difficulty levels** — Beginner · Intermediate · Master
-- **Real-time analysis bar** — Toggle evaluation bar + best variation (like Lichess)
-- **Keyboard navigation** — Browse moves with ← → arrow keys
-- **Move history** — Full PGN-style move list with position highlighting
-- **Undo** — Take back your last move pair
-- **Multiple board themes** — Lichess, Chess.com, Blue, Walnut, Dark
-- **Responsive design** — Works on desktop and mobile
+To run the engine locally, you will need **Node.js** and **CMake**. To build the WebAssembly module, you need the **Emscripten SDK (emsdk)**. 
 
----
-
-## 🚀 Running Locally
-
+### 1. Clone the repository
 ```bash
-# 1. Clone the repo
-git clone https://github.com/arpitsingh2492/astra-chess.git
-cd astra-chess
+git clone https://github.com/arpitsingh2492/Chess-Engine.git
+cd Chess-Engine
+```
 
-# 2. Install dependencies
+### 2. Build the C++ Engine
+
+**Option A: Build for Web (WASM via Emscripten)**
+*Requires [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) installed and activated in your terminal.*
+```bash
+cd engine
+mkdir build_wasm && cd build_wasm
+emcmake cmake ..
+emmake make -j4
+# Copy the compiled engine to the web directory
+cp chess_engine.js chess_engine.wasm ../../ChessWeb/src/engine/
+```
+
+**Option B: Build Native (For Testing & Benchmarking)**
+*Requires CMake and a C++ compiler (g++, clang, MSVC).*
+```bash
+cd engine
+mkdir build && cd build
+cmake ..
+cmake --build . -j4
+# Run the native test harness
+./chess_test
+```
+
+### 3. Run the Web Interface
+```bash
+cd ../ChessWeb
 npm install
-
-# 3. Start development server
 npm run dev
-# → Open http://localhost:5173
+# -> Open http://localhost:5173
 ```
-
-### Build for Production
-
-```bash
-npm run build
-# Output is in ./dist — can be served as a static site
-```
-
-### Preview Production Build
-
-```bash
-npm run preview
-```
-
----
-
-## 🌐 Deploy to GitHub Pages
-
-```bash
-# 1. Add homepage to package.json (already done if you forked this repo)
-# 2. Build
-npm run build
-
-# 3. Deploy (using gh-pages)
-npx gh-pages -d dist
-```
-
-Or use the included GitHub Actions workflow (`.github/workflows/deploy.yml`) for automatic deployment on every push to `main`.
+*Note: If the WASM file is not built, the web app will gracefully fall back to a slower, identical logic written in TypeScript.*
 
 ---
 
 ## 🗂️ Project Structure
 
-```
-src/
-├── engine/
-│   ├── board.ts          # Board representation (10×10 mailbox)
-│   ├── movegen.ts        # Legal move generation
-│   ├── evaluate.ts       # Position evaluation
-│   ├── search.ts         # Alpha-beta search + iterative deepening
-│   └── engine.worker.ts  # Web Worker wrapper
-├── components/
-│   ├── ChessBoard.tsx    # Interactive board rendering
-│   ├── EvalBar.tsx       # Smooth evaluation bar (sigmoid + lerp)
-│   ├── MoveHistory.tsx   # Move list with navigation
-│   ├── AnalysisPanel.tsx # Analysis toggle + best line display
-│   └── ...
-├── pages/
-│   ├── LandingPage.tsx   # Hero landing page
-│   └── GamePage.tsx      # Main game view
-└── styles/
-    ├── index.css         # Design tokens & global styles
-    ├── game.css          # Game layout styles
-    └── landing.css       # Landing page styles
+```text
+Chess-Engine/
+├── engine/                 # ⚙️ Core C++ Chess Engine
+│   ├── CMakeLists.txt      # Build configuration for Native & WASM
+│   ├── include/            # C++ Headers (types, board, movegen, eval, search)
+│   └── src/                # C++ Implementations
+│       ├── main.cpp        # Native CLI testing and benchmarking harness
+│       └── wasm_api.cpp    # C-linkage exports for WebAssembly interop
+│
+└── ChessWeb/               # 🌐 React / TypeScript Frontend
+    ├── src/engine/         # Web Worker bridge & WASM module host
+    ├── src/components/     # UI Components (ChessBoard, EvalBar, etc.)
+    └── package.json        # Build scripts
 ```
 
 ---
 
-## 🧪 Testing the Engine
+## 🛠️ Technology Stack
 
-You can test the engine's strength:
-
-1. **Play against it** at all three difficulty levels
-2. **Use the Analysis bar** — flip it on and navigate through moves to see eval scores
-3. **Benchmark** — uncomment the benchmark in `engine.worker.ts` to see nodes/second
-
-### Lichess Engine Testing
-You can test Astra against other engines by exporting a game as PGN and pasting it into Lichess's Analysis board.
-
----
-
-## 🛠️ Tech Stack
-
-- **TypeScript** — Full type safety across engine + UI
-- **React 19** — Component-based UI with hooks
-- **Vite** — Lightning-fast bundler with Web Worker support
-- **React Router** — Client-side routing (Landing → Game)
-- **Web Workers API** — Off-thread engine search
+- **C++17**: The raw brain of the engine.
+- **Emscripten**: Compiles the C++ engine into `.wasm` and generates JS glue code.
+- **TypeScript**: Provides type safety for the Web Worker bridging layer and UI.
+- **React 19 & Vite**: High-performance UI rendering and local development server.
+- **Web Workers**: Runs the WASM engine on a background thread so the UI never freezes.
 
 ---
 
@@ -171,4 +135,4 @@ MIT License — feel free to fork, study, and build on it.
 
 ---
 
-*"No Stockfish. No chess.js. Every move generated, evaluated, and searched by code written from scratch."*
+*"No Stockfish. No chess.js. Every node calculated natively by code written from scratch."*
