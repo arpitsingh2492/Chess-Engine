@@ -15,62 +15,8 @@ interface AnalysisPanelProps {
 }
 
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ 
-  engineResult, isThinking, startMoveNum = 1, isWhiteTurn = true, showAnalysis, onToggleAnalysis 
+  engineResult, isThinking, showAnalysis, onToggleAnalysis 
 }) => {
-
-  const getEvalString = (score: number) => {
-    const isMate = Math.abs(score) > 90000;
-    if (isMate) {
-      const dist = Math.floor((1000000 - Math.abs(score)) / 2) + 1;
-      return score > 0 ? `M${dist}` : `-M${dist}`;
-    }
-    const cp = score / 100;
-    return cp > 0 ? `+${cp.toFixed(1)}` : cp.toFixed(1);
-  };
-
-  const getEvalClass = (score: number) => {
-    if (score > 150) return 'positive';
-    if (score < -150) return 'negative';
-    return 'neutral';
-  };
-
-  const formatPV = (pvMoves: string[], startNum: number, isWhiteStart: boolean): React.ReactNode[] => {
-    if (!pvMoves || pvMoves.length === 0) return [];
-    const nodes: React.ReactNode[] = [];
-    let moveNum = startNum;
-    let i = 0;
-
-    if (!isWhiteStart) {
-      nodes.push(
-        <span key="num-first" className="pv-move-num">{moveNum}...</span>
-      );
-      nodes.push(
-        <span key="move-0" className={`pv-move ${i === 0 ? 'pv-best-move' : ''}`}>{pvMoves[0]}</span>
-      );
-      i = 1;
-      moveNum++;
-    }
-
-    while (i < pvMoves.length) {
-      // White move
-      nodes.push(
-        <span key={`num-${moveNum}`} className="pv-move-num">{moveNum}.</span>
-      );
-      nodes.push(
-        <span key={`w-${i}`} className={`pv-move ${i === 0 ? 'pv-best-move' : ''}`}>{pvMoves[i]}</span>
-      );
-      i++;
-      // Black move
-      if (i < pvMoves.length) {
-        nodes.push(
-          <span key={`b-${i}`} className={`pv-move`}>{pvMoves[i]}</span>
-        );
-        i++;
-      }
-      moveNum++;
-    }
-    return nodes;
-  };
 
   const renderAnalysis = () => {
     if (!showAnalysis) return null;
