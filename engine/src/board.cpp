@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 #include "board.h"
 #include <sstream>
 #include <algorithm>

@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/landing.css';

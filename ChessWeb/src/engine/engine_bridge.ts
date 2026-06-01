@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 /**
  * Engine Bridge - TypeScript wrapper for the C++ WASM chess engine.
  * Provides type-safe access to the compiled WebAssembly module.

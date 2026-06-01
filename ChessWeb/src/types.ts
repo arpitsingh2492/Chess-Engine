@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 export const Piece = {
   Empty: 0,
   Pawn: 1,

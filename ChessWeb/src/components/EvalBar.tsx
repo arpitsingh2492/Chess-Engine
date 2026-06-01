@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 import React, { useRef, useEffect, useState } from 'react';
 
 interface EvalBarProps {

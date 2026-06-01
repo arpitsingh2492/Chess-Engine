@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 #include "wasm_api.h"
 #include "board.h"
 #include "movegen.h"

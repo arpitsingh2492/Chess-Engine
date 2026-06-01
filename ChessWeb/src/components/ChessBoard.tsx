@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 import { Piece, Move } from '../types';
 import { PieceArt } from './PieceArt';
 import '../styles/board.css';

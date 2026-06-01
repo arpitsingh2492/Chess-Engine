@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 import React, { useEffect, useRef } from 'react';
 import { GameHistoryEntry } from '../types';
 

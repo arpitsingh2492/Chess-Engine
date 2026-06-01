@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 import React from 'react';
 
 // Cburnett standard chess pieces (used by Lichess)

@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 import React, { useState } from 'react';
 import { BotLevel } from '../types';
 

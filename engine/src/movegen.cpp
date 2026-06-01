@@ -1,3 +1,7 @@
+/*
+ * ASTRA - Chess Engine by arpitsingh2492
+ */
+
 #include "movegen.h"
 #include <cmath>
 #include <cstdlib>
