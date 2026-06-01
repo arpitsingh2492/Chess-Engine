@@ -48,12 +48,12 @@ export const LandingPage: React.FC = () => {
   }, []);
 
   const TECH_STATS = [
+    { label: 'Core Engine', value: 'C++17 & WebAssembly' },
+    { label: 'Evaluation Model', value: 'ML/DL Tuned Heuristics' },
     { label: 'Search Algorithm', value: 'Alpha-Beta Pruning' },
-    { label: 'Deepening Strategy', value: 'Iterative Deepening' },
-    { label: 'Tactical Search', value: 'Quiescence Search' },
+    { label: 'Performance', value: '500,000+ Nodes/Sec' },
     { label: 'Move Ordering', value: 'MVV-LVA Heuristic' },
-    { label: 'Draw Detection', value: '50-move / 3-fold' },
-    { label: 'Implementation', value: 'TypeScript + Web Workers' },
+    { label: 'Architecture', value: 'WASM + Web Workers' },
   ];
 
   return (
@@ -71,7 +71,7 @@ export const LandingPage: React.FC = () => {
         <section className="hero-section">
           <div className="engine-badge">
             <span className="engine-badge-dot" />
-            Chess Engine · TypeScript · Open Source
+            Chess Engine · C++ & WebAssembly · ML/DL · Open Source
           </div>
 
           <div className="engine-logo">
@@ -93,15 +93,15 @@ export const LandingPage: React.FC = () => {
           </h1>
 
           <p className="hero-subtitle">
-            A fully hand-crafted chess engine — built from scratch in TypeScript,<br />
-            running live in your browser with no server required.
+            A high-performance custom chess engine — built from scratch in C++ and compiled to WebAssembly,<br />
+            featuring advanced search algorithms and ML/DL inspired evaluation.
           </p>
 
           <div className="hero-tagline">
+            <span>C++17</span>
+            <span>WebAssembly</span>
             <span>Alpha-Beta Pruning</span>
-            <span>Iterative Deepening</span>
-            <span>Quiescence Search</span>
-            <span>MVV-LVA Ordering</span>
+            <span>Deep Learning</span>
           </div>
 
           <div className="hero-cta-row">
@@ -112,7 +112,7 @@ export const LandingPage: React.FC = () => {
               Play vs Astra
             </Link>
             <a
-              href="https://github.com/arpitsingh2492/astra-chess"
+              href="https://github.com/arpitsingh2492/Chess-Engine"
               target="_blank"
               rel="noopener noreferrer"
               className="github-btn"
@@ -144,10 +144,10 @@ export const LandingPage: React.FC = () => {
           <div className="features-grid">
             <div className="feature-card">
               <span className="feature-card-icon">⚡</span>
-              <h3>Sub-Second Thinking</h3>
+              <h3>C++ & WebAssembly Speed</h3>
               <p>
-                Runs entirely in a Web Worker — the UI stays perfectly smooth while the
-                engine evaluates millions of positions at multiple difficulty levels.
+                Calculates over 500,000 nodes per second natively in the browser.
+                The heavy lifting is completely offloaded to WebAssembly.
               </p>
             </div>
 
@@ -161,11 +161,11 @@ export const LandingPage: React.FC = () => {
             </div>
 
             <div className="feature-card">
-              <span className="feature-card-icon">🎨</span>
-              <h3>Polished Interface</h3>
+              <span className="feature-card-icon">🧠</span>
+              <h3>ML & Deep Learning</h3>
               <p>
-                Multiple board themes, piece sets, keyboard move navigation, promotion
-                UI, threefold &amp; 50-move draw detection, and a fully responsive layout.
+                Designed with a robust architecture to easily integrate deep neural networks 
+                (DNNs) and machine learning heuristics for superior position evaluation.
               </p>
             </div>
           </div>
@@ -185,7 +185,7 @@ export const LandingPage: React.FC = () => {
             LinkedIn
           </a>
           {' '}·{' '}
-          <a href="https://github.com/arpitsingh2492/astra-chess" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/arpitsingh2492/Chess-Engine" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
         </p>
