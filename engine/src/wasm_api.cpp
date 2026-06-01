@@ -1,5 +1,9 @@
 /*
  * ASTRA - Chess Engine by arpitsingh2492
+ *
+ * WebAssembly API — C-linkage functions exported for JavaScript.
+ * Supports single search, MultiPV search, NNUE network loading,
+ * legal move generation, and board state queries.
  */
 
 #include "wasm_api.h"
@@ -7,6 +11,7 @@
 #include "movegen.h"
 #include "search.h"
 #include "eval.h"
+#include "nnue.h"
 #include <string>
 #include <chrono>
 
@@ -133,6 +138,70 @@ EXPORT const char* engine_search(int time_limit_ms, int max_depth) {
     return g_resultBuffer.c_str();
 }
 
+EXPORT const char* engine_search_multipv(int time_limit_ms, int max_depth, int num_pv) {
+    chess::SearchEngine searcher;
+    auto startTime = std::chrono::steady_clock::now();
+    chess::SearchResult result = searcher.searchMultiPV(g_board, time_limit_ms, max_depth, num_pv);
+    auto endTime = std::chrono::steady_clock::now();
+    int elapsed = static_cast<int>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
+    );
+
+    // Build variations JSON array
+    std::string variationsJson = "[";
+    for (size_t vi = 0; vi < result.variations.size(); vi++) {
+        if (vi > 0) variationsJson += ",";
+        const auto& var = result.variations[vi];
+
+        // Convert PV to SAN
+        chess::Board tempBoard = g_board.clone();
+        std::string pvJson = "[";
+        for (size_t i = 0; i < var.pv.size(); i++) {
+            if (i > 0) pvJson += ",";
+            std::string san = moveToSan(tempBoard, var.pv[i]);
+            pvJson += "\"" + san + "\"";
+            tempBoard.executeMove(var.pv[i]);
+        }
+        pvJson += "]";
+
+        variationsJson += "{";
+        variationsJson += "\"move\":" + moveToJson(var.bestMove);
+        variationsJson += ",\"score\":" + std::to_string(var.score);
+        variationsJson += ",\"pv\":" + pvJson;
+        variationsJson += "}";
+    }
+    variationsJson += "]";
+
+    // Build result JSON
+    g_resultBuffer = "{";
+    g_resultBuffer += "\"move\":" + moveToJson(result.bestMove);
+    g_resultBuffer += ",\"score\":" + std::to_string(result.score);
+    g_resultBuffer += ",\"depth\":" + std::to_string(result.depth);
+    g_resultBuffer += ",\"nodes\":" + std::to_string(result.nodes);
+    g_resultBuffer += ",\"timeMs\":" + std::to_string(elapsed);
+    g_resultBuffer += ",\"variations\":" + variationsJson;
+
+    // Also include PV from first variation
+    if (!result.pv.empty()) {
+        chess::Board tempBoard = g_board.clone();
+        std::string pvJson = "[";
+        for (size_t i = 0; i < result.pv.size(); i++) {
+            if (i > 0) pvJson += ",";
+            std::string san = moveToSan(tempBoard, result.pv[i]);
+            pvJson += "\"" + san + "\"";
+            tempBoard.executeMove(result.pv[i]);
+        }
+        pvJson += "]";
+        g_resultBuffer += ",\"pv\":" + pvJson;
+    } else {
+        g_resultBuffer += ",\"pv\":[]";
+    }
+
+    g_resultBuffer += "}";
+
+    return g_resultBuffer.c_str();
+}
+
 EXPORT const char* engine_get_legal_moves() {
     auto moves = chess::MoveGenerator::generateLegalMoves(g_board);
 
@@ -194,6 +263,14 @@ EXPORT const char* engine_get_board_squares() {
     }
     g_resultBuffer += "]";
     return g_resultBuffer.c_str();
+}
+
+EXPORT bool engine_load_nnue(const char* path) {
+    return chess::nnue::getGlobalNnue().loadNetwork(std::string(path));
+}
+
+EXPORT bool engine_is_nnue_loaded() {
+    return chess::nnue::getGlobalNnue().isLoaded();
 }
 
 } // extern "C"

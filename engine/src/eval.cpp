@@ -1,8 +1,15 @@
 /*
  * ASTRA - Chess Engine by arpitsingh2492
+ *
+ * Hybrid Evaluation: NNUE Neural Network + Piece-Square Table Fallback
+ *
+ * When a trained NNUE network is loaded, the evaluator uses neural
+ * network inference for Grandmaster-level positional understanding.
+ * Otherwise, it falls back to classical Piece-Square Tables.
  */
 
 #include "eval.h"
+#include "nnue.h"
 
 namespace chess {
 
@@ -74,6 +81,17 @@ static constexpr int KingMiddleTable[64] = {
 };
 
 int Evaluator::evaluate(const Board& board) {
+    // Use NNUE evaluation if a network is loaded
+    auto& nnueNet = nnue::getGlobalNnue();
+    if (nnueNet.isLoaded()) {
+        return nnueNet.evaluate(board);
+    }
+
+    // Fallback: Classical Piece-Square Table evaluation
+    return evaluateClassical(board);
+}
+
+int Evaluator::evaluateClassical(const Board& board) {
     int score = 0;
 
     for (int sq = 0; sq < 64; sq++) {

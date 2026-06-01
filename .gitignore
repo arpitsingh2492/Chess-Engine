@@ -1,0 +1,16 @@
+# Build artifacts
+engine/emsdk/
+engine/astra_engine.exe
+engine/astra_engine.js
+engine/astra_engine.wasm
+engine/build/
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

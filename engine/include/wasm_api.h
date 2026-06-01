@@ -18,6 +18,7 @@ extern "C" {
     EXPORT void engine_new_game();
     EXPORT void engine_load_fen(const char* fen);
     EXPORT const char* engine_search(int time_limit_ms, int max_depth);
+    EXPORT const char* engine_search_multipv(int time_limit_ms, int max_depth, int num_pv);
     EXPORT const char* engine_get_legal_moves();
     EXPORT const char* engine_get_fen();
     EXPORT bool engine_make_move(int origin, int destination,
@@ -29,4 +30,6 @@ extern "C" {
     EXPORT bool engine_is_threefold_repetition();
     EXPORT bool engine_is_white_to_move();
     EXPORT const char* engine_get_board_squares();
+    EXPORT bool engine_load_nnue(const char* path);
+    EXPORT bool engine_is_nnue_loaded();
 }

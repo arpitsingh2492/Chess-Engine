@@ -1,5 +1,8 @@
 /*
  * ASTRA - Chess Engine by arpitsingh2492
+ *
+ * Search Algorithm: Alpha-Beta with Iterative Deepening,
+ * Quiescence Search, MVV-LVA Move Ordering, and Multi-PV support.
  */
 
 #include "search.h"
@@ -11,11 +14,23 @@
 
 namespace chess {
 
+// Check if a root move is in the exclusion list (for MultiPV)
+bool SearchEngine::isRootMoveExcluded(const Move& move) const {
+    for (int idx : excludedRootMoves_) {
+        // We store the move as origin*64+destination for simple matching
+        if (idx == move.origin * 64 + move.destination) {
+            return true;
+        }
+    }
+    return false;
+}
+
 SearchResult SearchEngine::search(Board& board, int timeLimitMs, int maxDepth) {
     startTime_ = std::chrono::steady_clock::now();
     timeLimit_ = timeLimitMs;
     isTimeout_ = false;
     nodesSearched_ = 0;
+    excludedRootMoves_.clear();
 
     // Initialize PV tables with room for quiescence extensions
     int maxPly = maxDepth + 30;
@@ -62,6 +77,9 @@ SearchResult SearchEngine::search(Board& board, int timeLimitMs, int maxDepth) {
                 break;
             }
 
+            // Skip excluded moves (for MultiPV)
+            if (isRootMoveExcluded(move)) continue;
+
             board.executeMove(move);
             int score = -alphaBeta(board, depth - 1, -INFINITY_VAL, -currentBestScore, 1);
             board.undoMove();
@@ -104,6 +122,49 @@ SearchResult SearchEngine::search(Board& board, int timeLimitMs, int maxDepth) {
     result.nodes = nodesSearched_;
     result.pv = bestPV;
     return result;
+}
+
+// Multi-PV search: searches for the top N best moves
+SearchResult SearchEngine::searchMultiPV(Board& board, int timeLimitMs, int maxDepth, int numPV) {
+    excludedRootMoves_.clear();
+
+    SearchResult multiResult;
+    multiResult.depth = 0;
+    multiResult.nodes = 0;
+
+    auto legalMoves = MoveGenerator::generateLegalMoves(board);
+    int actualPV = std::min(numPV, static_cast<int>(legalMoves.size()));
+
+    for (int pvIdx = 0; pvIdx < actualPV; pvIdx++) {
+        // Give each PV line a proportional time share
+        int pvTimeLimit = timeLimitMs;
+
+        SearchResult lineResult = search(board, pvTimeLimit, maxDepth);
+
+        Variation var;
+        var.bestMove = lineResult.bestMove;
+        var.score = lineResult.score;
+        var.pv = lineResult.pv;
+        multiResult.variations.push_back(var);
+
+        if (pvIdx == 0) {
+            // First variation is the overall best
+            multiResult.bestMove = lineResult.bestMove;
+            multiResult.score = lineResult.score;
+            multiResult.pv = lineResult.pv;
+            multiResult.depth = lineResult.depth;
+        }
+
+        multiResult.nodes += lineResult.nodes;
+
+        // Exclude this root move from future searches
+        excludedRootMoves_.push_back(
+            lineResult.bestMove.origin * 64 + lineResult.bestMove.destination
+        );
+    }
+
+    excludedRootMoves_.clear();  // Clean up
+    return multiResult;
 }
 
 int SearchEngine::alphaBeta(Board& board, int depth, int alpha, int beta, int ply) {
