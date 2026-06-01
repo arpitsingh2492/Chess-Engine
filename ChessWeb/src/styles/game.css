@@ -206,6 +206,7 @@
    ============================================================ */
 
 .game-layout {
+  --board-size: min(calc(100vh - 280px), calc(100vw - 600px), 660px);
   flex: 1;
   display: flex;
   justify-content: center;
@@ -232,7 +233,6 @@
 
 /* Board + eval bar side-by-side */
 .board-and-eval {
-  --board-size: min(calc(100vh - 280px), calc(100vw - 600px), 660px);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -383,11 +383,11 @@
 .player-card-captures {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 2px;
-  flex-shrink: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: 55%;
+  flex-shrink: 1;
+  max-width: 70%;
 }
 
 .captured-group {

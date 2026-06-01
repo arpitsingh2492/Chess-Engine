@@ -68,8 +68,20 @@ export const GamePage: React.FC = () => {
 
   const workerRef = useRef<Worker | null>(null);
 
-  // Initialize Web Worker
+  // Audio instances
+  const audioMove = useRef<HTMLAudioElement | null>(null);
+  const audioCapture = useRef<HTMLAudioElement | null>(null);
+  const audioCheck = useRef<HTMLAudioElement | null>(null);
+  const audioVictory = useRef<HTMLAudioElement | null>(null);
+  const audioDefeat = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize Web Worker and Audio
   useEffect(() => {
+    audioMove.current = new Audio('/sounds/move.mp3');
+    audioCapture.current = new Audio('/sounds/capture.mp3');
+    audioCheck.current = new Audio('/sounds/check.mp3');
+    audioVictory.current = new Audio('/sounds/victory.mp3');
+    audioDefeat.current = new Audio('/sounds/defeat.mp3');
     workerRef.current = new Worker(new URL('../engine/engine.worker.ts', import.meta.url), {
       type: 'module'
     });
@@ -266,9 +278,12 @@ export const GamePage: React.FC = () => {
       const kingIndex = isWhiteTurn ? 0 : 1;
       const inCheck = MoveGenerator.isSquareAttacked(board, board.kingSquare[kingIndex], isWhiteTurn ? Piece.Black : Piece.White);
       if (inCheck) {
+        const didPlayerWin = (isWhiteTurn && playerColor === 'black') || (!isWhiteTurn && playerColor === 'white');
         const winner = isWhiteTurn ? (playerColor === 'white' ? 'Astra' : 'You') : (playerColor === 'white' ? 'You' : 'Astra');
         setStatusMessage(`Checkmate — ${winner} wins!`);
         setGameResult('checkmate');
+        if (didPlayerWin) audioVictory.current?.play().catch(()=>{});
+        else audioDefeat.current?.play().catch(()=>{});
       } else {
         setStatusMessage('Stalemate — Draw');
         setGameResult('stalemate');
@@ -343,13 +358,43 @@ export const GamePage: React.FC = () => {
     setViewIndex(-1);
 
     const board = boardRef.current;
-    const san = convertToSan(move, board.squares);
+    
+    // Check if move is a capture (needed for sound)
+    const isCapture = board.squares[move.destination] !== Piece.Empty || move.isEnPassant;
+    
+    // Base SAN BEFORE making move
+    const sanBase = convertToSan(move, board.squares);
     const fenBefore = board.getCurrentFen();
 
     board.executeMove(move);
 
+    // Determine check/mate for SAN suffix AFTER move
+    const isWhiteTurn = board.whiteToMove;
+    const kingIndex = isWhiteTurn ? 0 : 1;
+    const inCheck = MoveGenerator.isSquareAttacked(board, board.kingSquare[kingIndex], isWhiteTurn ? Piece.Black : Piece.White);
+    
+    let sanSuffix = '';
+    let isMate = false;
+    if (inCheck) {
+      const currentMoves = MoveGenerator.generateLegalMoves(board);
+      if (currentMoves.length === 0) {
+        sanSuffix = '#';
+        isMate = true;
+      } else {
+        sanSuffix = '+';
+      }
+    }
+    
+    const san = sanBase + sanSuffix;
     const fenAfter = board.getCurrentFen();
     const historyEntry: GameHistoryEntry = { move, san, fenBefore, fenAfter };
+
+    // Play appropriate sound (unless it's mate, which is handled in turn logic effect)
+    if (!isMate) {
+      if (inCheck) audioCheck.current?.play().catch(()=>{});
+      else if (isCapture) audioCapture.current?.play().catch(()=>{});
+      else audioMove.current?.play().catch(()=>{});
+    }
 
     setMoveHistory((prev) => [...prev, historyEntry]);
     setSquares([...board.squares]);
