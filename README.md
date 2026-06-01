@@ -1,6 +1,6 @@
 # Astra Chess Engine ♞
 
-> **A beautifully crafted, high-performance chess application featuring a custom C++ engine alongside the world-class Stockfish 18 (NNUE) WebAssembly integration.**
+> **A beautifully crafted, high-performance chess application featuring a custom C++ engine built entirely from scratch, utilizing NNUE evaluation trained on Stockfish 18 data.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Play%20Now-629924?style=for-the-badge)](https://arpitsingh2492.github.io/astra-chess/)
 [![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
@@ -12,15 +12,17 @@
 
 ## ✨ Overview
 
-Astra Chess is a premium web-based chess experience that brings grandmaster-level play directly into your browser. 
+Astra Chess is a premium web-based chess experience that brings powerful play directly into your browser. 
 
-This project is a hybrid showcase of systems programming and modern web development. It features a **custom chess engine written from scratch in C++17** for those interested in algorithmic chess programming, alongside a production-ready integration with **Stockfish 18 NNUE via WebAssembly** for the absolute highest quality gameplay on the web frontend.
+This project is a showcase of systems programming and modern web development. It features a **custom chess engine written from scratch in C++17** for algorithmic chess programming, which has been compiled to WebAssembly to run natively in the browser. 
+
+For positional evaluation training, the engine utilizes a custom Neural Network Updated Evaluation (NNUE) architecture trained on **Stockfish 18** datasets, granting it extremely accurate positional understanding without sacrificing performance.
 
 ### Key Web Features
-- **Stockfish 18 NNUE Integration**: Play against the strongest chess engine in the world, running directly in your browser via WebAssembly Web Workers.
+- **Astra Engine (WASM)**: Play against a custom-built chess engine running directly in your browser via WebAssembly Web Workers.
+- **Deep Multi-Line Analysis**: When enabled, the engine calculates and displays the top 3 best variations (MultiPV) simultaneously.
 - **Premium UI/UX**: A highly symmetric, distraction-free React design built from scratch with custom CSS and a modern mesh-gradient aesthetic.
 - **Light & Dark Mode**: Seamlessly toggle between Light and Dark themes that persist across sessions.
-- **Live Position Evaluation**: Real-time best-move analysis during gameplay.
 
 ---
 
@@ -46,7 +48,7 @@ For developers interested in how chess engines work under the hood, this reposit
 
 ## 🚀 Running Locally (Web UI)
 
-You do not need to install any C++ tools or compile anything to play the game on the web. The Stockfish WebAssembly binary is bundled and ready to go.
+You do not need to install any C++ tools or compile anything to play the game on the web. The WebAssembly binary is bundled and ready to go.
 
 ### Quick Start
 You only need [Node.js](https://nodejs.org/) installed.
@@ -82,13 +84,12 @@ cmake --build . -j4
 .\chess_test.exe
 ```
 
-**Option B: Downloading and Running Stockfish NNUE Locally**
-The web app automatically uses the WASM-compiled NNUE network. However, to run advanced analysis locally via CLI:
-1. Download the official [Stockfish binaries](https://stockfishchess.org/download/).
-2. Download the latest `.nnue` evaluation file.
-3. Run Stockfish in your terminal and pass advanced UCI commands:
+**Option B: Using Advanced NNUE Evaluation Locally**
+The web app automatically uses the compiled NNUE network. However, to run advanced analysis locally via CLI:
+1. Ensure the `.nnue` training file (trained via Stockfish datasets) is present.
+2. Run the engine in your terminal and pass advanced commands to load the network:
 ```bash
-stockfish
+astra_engine
 uci
 setoption name EvalFile value /path/to/network.nnue
 isready
@@ -108,7 +109,7 @@ Chess-Engine/
 │   └── src/                # C++ Implementations
 │
 └── ChessWeb/               # 🌐 React / TypeScript Frontend
-    ├── public/stockfish/   # Precompiled Stockfish 18 WASM & NNUE data
+    ├── public/             # Precompiled WASM & NNUE data
     ├── src/components/     # UI Components (ChessBoard, AnalysisPanel, etc.)
     └── src/engine/         # Web Worker bridge for engine communication
 ```
