@@ -9,9 +9,7 @@ import { resolve } from 'path'
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
   plugins: [react()],
-  // Use /astra-chess/ base only for production builds (GitHub Pages)
-  // Local dev uses / so routes work normally
-  base: command === 'build' ? '/astra-chess/' : '/',
+  base: '/',
   server: {
     open: true,
     headers: {
