@@ -65,4 +65,4 @@ export interface EngineResult {
 }
 
 export type BotLevel = '800' | '1500' | '2500';
-export type BoardTheme = 'obsidian' | 'lichess' | 'blue' | 'green' | 'wood' | 'pearl' | 'midnight';
+export type BoardTheme = 'pure' | 'cream';

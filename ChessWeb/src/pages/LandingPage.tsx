@@ -1,55 +1,10 @@
-/*
- * ASTRA - Chess Engine by arpitsingh2492
- */
-
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/landing.css';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const LandingPage: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Animated board pattern in the background
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    let frame = 0;
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const sq = 52;
-      const cols = Math.ceil(canvas.width / sq) + 2;
-      const rows = Math.ceil(canvas.height / sq) + 2;
-      const t = frame * 0.003;
-
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const isLight = (r + c) % 2 === 0;
-          const glow = Math.sin(t + r * 0.3 + c * 0.2) * 0.5 + 0.5;
-          ctx.fillStyle = isLight
-            ? `rgba(98,153,36,${0.018 + glow * 0.012})`
-            : `rgba(0,0,0,${0.04})`;
-          ctx.fillRect(c * sq - sq, r * sq, sq, sq);
-        }
-      }
-      frame++;
-      requestAnimationFrame(draw);
-    };
-    const animId = requestAnimationFrame(draw);
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
+  const { theme, toggleTheme } = useTheme();
 
   const TECH_STATS = [
     { label: 'Core Engine', value: 'C++17 & WebAssembly' },
@@ -62,12 +17,13 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="landing-page">
-      {/* Animated chess board background */}
-      <canvas ref={canvasRef} className="landing-canvas" />
+      {/* Theme Toggle Button */}
+      <button className="theme-toggle-btn" onClick={toggleTheme}>
+        {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+      </button>
 
-      {/* Gradient overlays */}
-      <div className="landing-glow landing-glow-tl" />
-      <div className="landing-glow landing-glow-br" />
+      {/* Simple chess related background */}
+      <div className="chess-bg-pattern"></div>
 
       <div className="landing-content">
 
@@ -78,16 +34,10 @@ export const LandingPage: React.FC = () => {
             Chess Engine · C++ & WebAssembly · ML/DL · Open Source
           </div>
 
-          <div className="engine-logo">
+          <div className="engine-logo-static">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="knight-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#629924" />
-                  <stop offset="100%" stopColor="#5b9bd5" />
-                </linearGradient>
-              </defs>
-              <circle cx="50" cy="50" r="46" fill="none" stroke="url(#knight-grad)" strokeWidth="2" opacity="0.5" />
-              <text x="50" y="68" textAnchor="middle" fontSize="55" fill="url(#knight-grad)" style={{ filter: 'drop-shadow(0 2px 12px rgba(98,153,36,0.7))' }}>♞</text>
+              <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.3" />
+              <text x="50" y="68" textAnchor="middle" fontSize="55" fill="currentColor">♞</text>
             </svg>
           </div>
 

@@ -9,9 +9,10 @@ interface MoveHistoryProps {
   history: GameHistoryEntry[];
   currentMoveIndex: number;
   analysisEvals?: (number | null)[];
+  onMoveClick: (index: number) => void;
 }
 
-export const MoveHistory: React.FC<MoveHistoryProps> = ({ history, currentMoveIndex, analysisEvals }) => {
+export const MoveHistory: React.FC<MoveHistoryProps> = ({ history, currentMoveIndex, analysisEvals, onMoveClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,13 +63,13 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({ history, currentMoveIn
         pairs.map(pair => (
           <div className="move-row" key={pair.index}>
             <div className="move-num">{pair.index}.</div>
-            <div className={`move-cell ${currentMoveIndex === pair.whiteIdx ? 'current' : ''}`}>
+            <div className={`move-cell ${currentMoveIndex === pair.whiteIdx ? 'current' : ''}`} onClick={() => onMoveClick(pair.whiteIdx)}>
               <span>{pair.white}</span>
               {pair.whiteEval !== undefined && pair.whiteEval !== null && (
                 <span className="move-eval">{formatEval(pair.whiteEval)}</span>
               )}
             </div>
-            <div className={`move-cell ${currentMoveIndex === pair.blackIdx ? 'current' : ''}`}>
+            <div className={`move-cell ${currentMoveIndex === pair.blackIdx ? 'current' : ''}`} onClick={() => pair.black && onMoveClick(pair.blackIdx)}>
               <span>{pair.black || ''}</span>
               {pair.black && pair.blackEval !== undefined && pair.blackEval !== null && (
                 <span className="move-eval">{formatEval(pair.blackEval)}</span>

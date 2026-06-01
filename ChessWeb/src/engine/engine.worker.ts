@@ -2,161 +2,196 @@
  * ASTRA - Chess Engine by arpitsingh2492
  */
 
-/**
- * Chess Engine Web Worker
- * 
- * Uses the original TypeScript engine.
- * When the C++ WASM engine is built and available, the worker will
- * automatically detect and use it for higher performance.
- */
-
-import { Piece, Move } from '../types';
 import { BoardState } from './board';
-import { SearchEngine } from './search';
+import { MoveGenerator } from './movegen';
+import { Piece } from '../types';
 
 const ctx: Worker = self as any;
 
-/** Convert a move to Standard Algebraic Notation given the current board state */
-function moveToSan(board: BoardState, move: Move): string {
-  const squares = board.squares;
+let sfWorker: Worker | null = null;
+let activeRequest: any = null;
+let queuedRequest: any = null;
+let isSearching = false;
+let searchStartTime = 0;
+let isWhiteToMove = true;
 
-  if (move.isCastling) {
-    return (move.destination % 8) === 6 ? 'O-O' : 'O-O-O';
-  }
+// Parsed data from info lines
+let currentDepth = 0;
+let currentScore = 0;
+let currentNodes = 0;
+let currentPv: string[] = [];
 
-  const piece = squares[move.origin];
-  const type = Piece.getPieceType(piece);
-  const target = squares[move.destination];
-  const isCapture = target !== Piece.Empty || move.isEnPassant;
+// Create a local board just for move parsing
+const board = new BoardState();
 
-  const file = String.fromCharCode(97 + (move.destination % 8));
-  const rank = String(Math.floor(move.destination / 8) + 1);
-
-  if (type === Piece.Pawn) {
-    if (isCapture) {
-      const origFile = String.fromCharCode(97 + (move.origin % 8));
-      const suffix = move.isPromotion ? `=${promoChar(move.promotionPieceType)}` : '';
-      return `${origFile}x${file}${rank}${suffix}`;
-    }
-    if (move.isPromotion) {
-      return `${file}${rank}=${promoChar(move.promotionPieceType)}`;
-    }
-    return `${file}${rank}`;
-  }
-
-  const typeChar = type === Piece.Knight ? 'N'
-    : type === Piece.Bishop ? 'B'
-    : type === Piece.Rook ? 'R'
-    : type === Piece.Queen ? 'Q'
-    : type === Piece.King ? 'K'
-    : '';
-
-  const captureChar = isCapture ? 'x' : '';
-  return `${typeChar}${captureChar}${file}${rank}`;
-}
-
-function promoChar(pieceType?: number): string {
-  if (pieceType === Piece.Queen) return 'Q';
-  if (pieceType === Piece.Rook) return 'R';
-  if (pieceType === Piece.Bishop) return 'B';
-  if (pieceType === Piece.Knight) return 'N';
-  return 'Q';
-}
-
-// ===== WASM Engine Support =====
-let useWasm = false;
-let _wasm_load_fen: ((fen: string) => void) | null = null;
-let _wasm_search: ((timeLimit: number, maxDepth: number) => string) | null = null;
-
-async function tryLoadWasm(): Promise<boolean> {
-  try {
-    // Dynamically check for the WASM module file
-    // @ts-ignore - dynamic import, may not exist
-    const moduleUrl = new URL('./chess_engine.js', import.meta.url);
-    const response = await fetch(moduleUrl.href, { method: 'HEAD' });
-    if (!response.ok) return false;
-
-    const module = await import(/* @vite-ignore */ moduleUrl.href);
-    const ChessEngineModule = module.default;
-    const instance = await ChessEngineModule();
+function initStockfish() {
+  if (sfWorker) return;
+  // Load the official Stockfish WASM worker
+  sfWorker = new Worker('/stockfish/stockfish.js');
+  
+  sfWorker.onmessage = (e) => {
+    const line = e.data;
+    if (typeof line !== 'string') return;
     
-    const init = instance.cwrap('engine_init', null, []);
-    _wasm_load_fen = instance.cwrap('engine_load_fen', null, ['string']);
-    _wasm_search = instance.cwrap('engine_search', 'string', ['number', 'number']);
-    init();
+    if (line.startsWith('info')) {
+      const depthMatch = line.match(/depth (\d+)/);
+      if (depthMatch) currentDepth = parseInt(depthMatch[1], 10);
+      
+      const nodesMatch = line.match(/nodes (\d+)/);
+      if (nodesMatch) currentNodes = parseInt(nodesMatch[1], 10);
+
+      const scoreMatch = line.match(/score cp (-?\d+)/);
+      const mateMatch = line.match(/score mate (-?\d+)/);
+      if (scoreMatch) {
+        currentScore = parseInt(scoreMatch[1], 10);
+      } else if (mateMatch) {
+        const mateIn = parseInt(mateMatch[1], 10);
+        currentScore = mateIn > 0 ? 999999 : -999999;
+      }
+      
+      const pvMatch = line.match(/pv (.+)/);
+      if (pvMatch) {
+        currentPv = pvMatch[1].split(' ');
+      }
+
+      // Stream intermediate evaluation to UI for instant bar updates
+      if (activeRequest) {
+        const scoreRelativeToWhite = isWhiteToMove ? currentScore : -currentScore;
+        ctx.postMessage({
+          move: null,
+          score: scoreRelativeToWhite,
+          depth: currentDepth,
+          nodes: currentNodes,
+          timeMs: Date.now() - searchStartTime,
+          pv: currentPv,
+          type: 'info' // Mark as an intermediate info update
+        });
+      }
+    }
     
-    console.log('[Engine Worker] C++ WASM engine loaded successfully');
-    return true;
-  } catch {
-    return false;
-  }
+    if (line.startsWith('bestmove')) {
+      const match = line.match(/bestmove (\S+)/);
+      if (match && activeRequest) {
+        const uciMove = match[1]; // e.g. "e2e4" or "e7e8q"
+        
+        let moveObj = null;
+        if (uciMove !== '(none)') {
+          const file1 = uciMove.charCodeAt(0) - 97;
+          const rank1 = parseInt(uciMove[1], 10) - 1;
+          const file2 = uciMove.charCodeAt(2) - 97;
+          const rank2 = parseInt(uciMove[3], 10) - 1;
+          const origin = rank1 * 8 + file1;
+          const destination = rank2 * 8 + file2;
+          
+          let promoType = 0;
+          if (uciMove.length === 5) {
+            const p = uciMove[4];
+            if (p === 'q') promoType = Piece.Queen;
+            if (p === 'r') promoType = Piece.Rook;
+            if (p === 'b') promoType = Piece.Bishop;
+            if (p === 'n') promoType = Piece.Knight;
+          }
+
+          const legalMoves = MoveGenerator.generateLegalMoves(board);
+          moveObj = legalMoves.find(m => 
+            m.origin === origin && 
+            m.destination === destination && 
+            (promoType === 0 || m.promotionPieceType === promoType)
+          ) || null;
+        }
+
+        const elapsed = Date.now() - searchStartTime;
+        
+        // Stockfish returns score relative to side to move
+        const scoreRelativeToWhite = isWhiteToMove ? currentScore : -currentScore;
+
+        const reqType = activeRequest.type;
+        const reqMinDelay = activeRequest.minDelay;
+        activeRequest = null; // Clear immediately so new requests can cancel properly
+
+        const postResult = () => {
+          ctx.postMessage({
+            move: moveObj,
+            score: scoreRelativeToWhite,
+            depth: currentDepth,
+            nodes: currentNodes,
+            timeMs: elapsed,
+            pv: currentPv,
+            type: reqType
+          });
+        };
+
+        // Artificial delay for fast moves (like 800 bot)
+        if (reqType === 'game' && elapsed < reqMinDelay) {
+          setTimeout(postResult, reqMinDelay - elapsed);
+        } else {
+          postResult();
+        }
+
+        isSearching = false;
+        if (queuedRequest) {
+          const nextReq = queuedRequest;
+          queuedRequest = null;
+          startSearch(nextReq);
+        }
+      }
+    }
+  };
+  
+  sfWorker.postMessage('uci');
+  sfWorker.postMessage('setoption name Use NNUE value true');
+  sfWorker.postMessage('isready');
 }
 
-// Try to load WASM asynchronously
-tryLoadWasm().then(success => {
-  useWasm = success;
-  if (!success) {
-    console.log('[Engine Worker] Using TypeScript engine (WASM not available)');
+function startSearch(requestData: any) {
+  const { fen, timeLimit, maxDepth, type, botLevel } = requestData;
+  
+  isSearching = true;
+  activeRequest = { 
+    type, 
+    minDelay: botLevel === '800' ? 800 : 0 
+  };
+  
+  board.loadFromFen(fen);
+  isWhiteToMove = fen.includes(' w ');
+
+  searchStartTime = Date.now();
+  currentDepth = 0;
+  currentScore = 0;
+  currentNodes = 0;
+  currentPv = [];
+
+  sfWorker!.postMessage(`position fen ${fen}`);
+  
+  if (type === 'game') {
+    let skillLevel = 20;
+    if (botLevel === '800') skillLevel = 0;
+    if (botLevel === '1500') skillLevel = 5;
+    sfWorker!.postMessage(`setoption name Skill Level value ${skillLevel}`);
+  } else {
+    sfWorker!.postMessage(`setoption name Skill Level value 20`);
   }
-});
+
+  let limits = '';
+  if (botLevel === '800' && type === 'game') {
+    limits = 'depth 1';
+  } else {
+    limits = `movetime ${timeLimit}`;
+    if (maxDepth) limits += ` depth ${maxDepth}`;
+  }
+
+  sfWorker!.postMessage(`go ${limits}`);
+}
 
 ctx.onmessage = (e: MessageEvent) => {
-  const { fen, timeLimit, maxDepth, type } = e.data;
-
-  if (useWasm && _wasm_load_fen && _wasm_search) {
-    // ===== WASM PATH =====
-    const startTime = Date.now();
-    _wasm_load_fen(fen);
-    const resultJson = _wasm_search(timeLimit, maxDepth || 10);
-    const elapsed = Date.now() - startTime;
-
-    try {
-      const result = JSON.parse(resultJson);
-      ctx.postMessage({
-        move: result.move,
-        score: result.score,
-        depth: result.depth,
-        nodes: result.nodes,
-        timeMs: result.timeMs || elapsed,
-        pv: result.pv,
-        type
-      });
-      return;
-    } catch {
-      console.warn('[Engine Worker] WASM parse failed, using TS fallback');
-    }
+  initStockfish();
+  
+  if (isSearching) {
+    queuedRequest = e.data;
+    sfWorker!.postMessage('stop');
+  } else {
+    startSearch(e.data);
   }
-
-  // ===== TypeScript PATH =====
-  const board = new BoardState();
-  board.loadFromFen(fen);
-
-  const searcher = new SearchEngine();
-  const startTime = Date.now();
-  const result = searcher.search(board, timeLimit, maxDepth || 10);
-  const elapsed = Date.now() - startTime;
-
-  // Convert PV moves to SAN notation by replaying on a temp board
-  const pvSan: string[] = [];
-  const tempBoard = new BoardState();
-  tempBoard.loadFromFen(fen);
-  for (const pvMove of result.pv) {
-    try {
-      pvSan.push(moveToSan(tempBoard, pvMove));
-      tempBoard.executeMove(pvMove);
-    } catch {
-      break; // Stop if move application fails
-    }
-  }
-
-  ctx.postMessage({
-    move: result.move,
-    score: result.score,
-    depth: result.depth,
-    nodes: result.nodes,
-    timeMs: elapsed,
-    pv: pvSan,
-    type
-  });
 };
+
 export {};

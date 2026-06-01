@@ -14,10 +14,11 @@ import { MoveHistory } from '../components/MoveHistory';
 import { GameSetupModal } from '../components/GameSetupModal';
 import { AnalysisPanel } from '../components/AnalysisPanel';
 import { Piece, Move, GameHistoryEntry, BoardTheme, EngineResult, BotLevel } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 import '../styles/game.css';
 
 const BOT_CONFIG = {
-  '800': { time: 500, depth: 4 },
+  '800': { time: 50, depth: 1 },
   '1500': { time: 1500, depth: 7 },
   '2500': { time: 4000, depth: 10 }
 };
@@ -30,13 +31,15 @@ export const GamePage: React.FC = () => {
     return b;
   })());
 
+  const { theme, toggleTheme } = useTheme();
+
   const [squares, setSquares] = useState<number[]>([...boardRef.current.squares]);
   const [selectedSquare, setSelectedSquare] = useState<number>(-1);
   const [legalMoves, setLegalMoves] = useState<Move[]>([]);
   const [lastMove, setLastMove] = useState<Move | null>(null);
   const [moveHistory, setMoveHistory] = useState<GameHistoryEntry[]>([]);
   const [playerColor, setPlayerColor] = useState<'white' | 'black'>('white');
-  const [boardTheme, setBoardTheme] = useState<BoardTheme>('pearl');
+  const [boardTheme, setBoardTheme] = useState<BoardTheme>('pure');
   const [botLevel, setBotLevel] = useState<BotLevel>('1500');
 
   // App state
@@ -62,10 +65,6 @@ export const GamePage: React.FC = () => {
   const [isAnalyzingGame, setIsAnalyzingGame] = useState(false);
   const [analysisEvals, setAnalysisEvals] = useState<(number | null)[]>([]);
 
-  // Lichess cloud evaluation
-  const [lichessScore, setLichessScore] = useState<number | null>(null);
-  const lichessFetchRef = useRef<AbortController | null>(null);
-
   const workerRef = useRef<Worker | null>(null);
 
   // Audio instances
@@ -81,13 +80,12 @@ export const GamePage: React.FC = () => {
     audioMove.current = new Audio('/sounds/move.mp3');
     audioCapture.current = new Audio('/sounds/capture.mp3');
     
-    // Check sound is a bit intense, lower the volume
+    // Check sound (increased volume)
     audioCheck.current = new Audio('/sounds/check.mp3');
-    audioCheck.current.volume = 0.35;
     
-    audioVictory.current = new Audio('/sounds/victory.mp3');
-    audioDefeat.current = new Audio('/sounds/defeat.mp3');
-    audioDraw.current = new Audio('/sounds/draw.mp3');
+    audioVictory.current = new Audio('/sounds/game-end.mp3');
+    audioDefeat.current = new Audio('/sounds/game-end.mp3');
+    audioDraw.current = new Audio('/sounds/game-end.mp3');
     workerRef.current = new Worker(new URL('../engine/engine.worker.ts', import.meta.url), {
       type: 'module'
     });
@@ -129,12 +127,23 @@ export const GamePage: React.FC = () => {
   };
 
   const handleNextMove = () => {
-    if (moveHistory.length === 0 || isSetup) return;
     setViewIndex(prev => {
-      const current = prev === -1 ? moveHistory.length : prev;
-      const next = current + 1;
-      return next >= moveHistory.length ? -1 : next;
+      if (prev === -1 || prev === moveHistory.length) return -1;
+      const next = prev + 1;
+      return next === moveHistory.length ? -1 : next;
     });
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.deltaY < 0) {
+      handlePrevMove();
+    } else if (e.deltaY > 0) {
+      handleNextMove();
+    }
+  };
+
+  const handleMoveClick = (index: number) => {
+    setViewIndex(index + 1);
   };
 
   // Keyboard navigation for moves
@@ -176,49 +185,12 @@ export const GamePage: React.FC = () => {
       fen,
       timeLimit: 500, // Fast 0.5s response for interactive analysis
       maxDepth: 16,
-      type: 'view_analysis'
+      type: 'view_analysis',
+      botLevel
     });
   }, [viewIndex, moveHistory.length, showAnalysis, isAnalyzingGame, isSetup]);
 
-  // Lichess cloud eval — fetch real evaluation from Lichess API
-  useEffect(() => {
-    if (!showAnalysis || isSetup) return;
 
-    // Abort any in-flight request
-    lichessFetchRef.current?.abort();
-    const controller = new AbortController();
-    lichessFetchRef.current = controller;
-
-    let fen = '';
-    if (viewIndex === -1 || viewIndex === moveHistory.length) {
-      fen = boardRef.current.getCurrentFen();
-    } else if (viewIndex === 0) {
-      fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-    } else {
-      fen = moveHistory[viewIndex - 1].fenAfter;
-    }
-
-    setLichessScore(null); // clear while loading
-
-    fetch(`https://lichess.org/api/cloud-eval?fen=${encodeURIComponent(fen)}&multiPv=1`, {
-      signal: controller.signal,
-      headers: { 'Accept': 'application/json' }
-    })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data || !data.pvs || data.pvs.length === 0) return;
-        const pv = data.pvs[0];
-        if (pv.mate !== undefined) {
-          // Mate score: use large sentinel value
-          setLichessScore(pv.mate > 0 ? 999999 : -999999);
-        } else if (pv.cp !== undefined) {
-          setLichessScore(pv.cp); // centipawns, positive = white advantage
-        }
-      })
-      .catch(() => {}); // ignore aborts / network errors
-
-    return () => controller.abort();
-  }, [viewIndex, moveHistory.length, showAnalysis, isSetup, squares]);
 
   // Compute displayed board based on viewIndex
   const displayedBoardState = React.useMemo(() => {
@@ -240,32 +212,13 @@ export const GamePage: React.FC = () => {
     : (viewIndex === 0 ? null : moveHistory[viewIndex - 1].move);
 
   // Determine which eval score to show
-  // Priority: 1) Lichess cloud eval (most accurate), 2) analysisEvals, 3) engine local
   let currentScore = engineResult?.score ?? 0;
   
-  // Convert local engine score to White's perspective
-  if (engineResult !== null) {
-    const isWhiteToMove = displayedBoardState.whiteToMove;
-    if (!isWhiteToMove) {
-      currentScore = -currentScore;
-    }
-  }
-
   if (analysisEvals.length > 0) {
     const evalIndex = viewIndex === -1 ? moveHistory.length - 1 : viewIndex - 1;
     if (evalIndex >= 0 && evalIndex < analysisEvals.length && analysisEvals[evalIndex] !== null) {
       currentScore = analysisEvals[evalIndex]!;
-      // Convert it to White's perspective if needed
-      const isWhiteToMove = displayedBoardState.whiteToMove;
-      if (!isWhiteToMove) {
-        currentScore = -currentScore;
-      }
     }
-  }
-
-  // Override with Lichess cloud eval if available (more accurate, already from White's perspective)
-  if (lichessScore !== null) {
-    currentScore = lichessScore;
   }
 
   // Turn logic
@@ -322,7 +275,8 @@ export const GamePage: React.FC = () => {
         fen: board.getCurrentFen(),
         timeLimit: config.time,
         maxDepth: config.depth,
-        type: 'game'
+        type: 'game',
+        botLevel
       });
     } else if (gameResult === 'active') {
       setStatusMessage(viewIndex === -1 ? 'Your turn' : 'Reviewing past moves');
@@ -580,15 +534,16 @@ export const GamePage: React.FC = () => {
         )}
 
         <div className="game-nav-right">
+          {/* Global Light/Dark Theme switcher */}
+          <button className="theme-toggle-btn" onClick={toggleTheme} style={{ position: 'relative', top: 'auto', right: 'auto', marginRight: 16 }}>
+            {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+          </button>
+
           {/* Board theme switcher */}
           <div className="theme-switcher" title="Board theme">
             {([
-              { id: 'pearl',    light: '#f5f5f5', dark: '#2e313a',  label: 'Black & White' },
-              { id: 'obsidian', light: '#c8b89a', dark: '#3d2b1f',  label: 'Obsidian' },
-              { id: 'lichess',  light: '#f0d9b5', dark: '#b58863',  label: 'Classic' },
-              { id: 'blue',     light: '#dee3e6', dark: '#8ca2ad',  label: 'Ocean' },
-              { id: 'wood',     light: '#eedcbe', dark: '#9b5e2a',  label: 'Walnut' },
-              { id: 'midnight', light: '#2a2a3e', dark: '#111120',  label: 'Midnight' },
+              { id: 'pure',  light: '#ffffff', dark: '#222222',  label: 'Pure' },
+              { id: 'cream', light: '#f4f1e1', dark: '#7b9071',  label: 'Cream' }
             ] as { id: BoardTheme; light: string; dark: string; label: string }[]).map(t => (
               <div
                 key={t.id}
@@ -626,15 +581,28 @@ export const GamePage: React.FC = () => {
                 <EvalBar score={currentScore} isFlipped={playerColor === 'black'} />
               </div>
             )}
-            <div className="board-wrapper">
-              <ChessBoard
-                squares={displayedSquares}
-                selectedSquare={selectedSquare}
-                legalMoves={viewIndex === -1 && !isSetup ? legalMoves : []} 
-                lastMove={displayedLastMove}
-                isFlipped={playerColor === 'black'}
-                onSquareClick={handleSquareClick}
-              />
+            <div className="board-wrapper" onWheel={handleWheel}>
+              {(() => {
+                const isWhite = displayedBoardState.whiteToMove;
+                const kIdx = isWhite ? 0 : 1;
+                const inCheck = MoveGenerator.isSquareAttacked(
+                  displayedBoardState, 
+                  displayedBoardState.kingSquare[kIdx], 
+                  isWhite ? Piece.Black : Piece.White
+                );
+                return (
+                  <ChessBoard
+                    squares={displayedSquares}
+                    selectedSquare={selectedSquare}
+                    legalMoves={viewIndex === -1 && !isSetup ? legalMoves : []} 
+                    lastMove={displayedLastMove}
+                    isFlipped={playerColor === 'black'}
+                    checkSquare={inCheck ? displayedBoardState.kingSquare[kIdx] : -1}
+                    isMate={gameResult === 'checkmate'}
+                    onSquareClick={handleSquareClick}
+                  />
+                );
+              })()}
             </div>
           </div>
 
@@ -664,7 +632,7 @@ export const GamePage: React.FC = () => {
                   onToggleAnalysis={() => setShowAnalysis(!showAnalysis)}
                 />
                 
-                <div className="moves-scroll-area">
+                <div className="moves-scroll-area" onWheel={handleWheel}>
                   {moveHistory.length === 0 && !isSetup ? (
                     <div className="moves-empty">No moves played yet</div>
                   ) : (
@@ -672,6 +640,7 @@ export const GamePage: React.FC = () => {
                       history={moveHistory}
                       currentMoveIndex={viewIndex === -1 ? moveHistory.length - 1 : viewIndex - 1}
                       analysisEvals={analysisEvals.length > 0 ? analysisEvals : undefined}
+                      onMoveClick={handleMoveClick}
                     />
                   )}
                 </div>
@@ -691,10 +660,10 @@ export const GamePage: React.FC = () => {
                       <button className="action-btn" onClick={handleUndo} disabled={aiIsThinking || moveHistory.length < 2 || viewIndex !== -1} title="Take back move">
                         ↩ Undo
                       </button>
-                      <button className="action-btn danger-btn" onClick={() => { setGameResult('checkmate'); setStatusMessage('You resigned — Astra wins'); }} disabled={aiIsThinking || gameResult !== 'active' || viewIndex !== -1} title="Resign">
+                      <button className="action-btn danger-btn" onClick={() => { audioDefeat.current?.play().catch(()=>{}); setGameResult('checkmate'); setStatusMessage('You resigned — Astra wins'); }} disabled={aiIsThinking || gameResult !== 'active' || viewIndex !== -1} title="Resign">
                         🏳 Resign
                       </button>
-                      <button className="action-btn primary-btn" onClick={handleShowSetup} title="New Game">
+                      <button className="action-btn primary-btn" onClick={() => { audioMove.current?.play().catch(()=>{}); handleShowSetup(); }} title="New Game">
                         ✦ New Game
                       </button>
                     </div>

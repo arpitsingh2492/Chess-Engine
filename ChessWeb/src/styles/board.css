@@ -18,30 +18,10 @@
   position: relative;
   /* Padding creates a "frame" border around the board */
   padding: 18px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--board-frame-bg, #1a1410);
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.06),
-    0 12px 40px rgba(0,0,0,0.7),
-    inset 0 1px 0 rgba(255,255,255,0.08);
+  border: 1px solid var(--border-strong);
   flex-shrink: 0;
-}
-
-/* Decorative grain/sheen overlay on the frame */
-.board-outer::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background:
-    repeating-linear-gradient(
-      87deg,
-      transparent,
-      transparent 2px,
-      rgba(255,255,255,0.013) 2px,
-      rgba(255,255,255,0.013) 4px
-    );
-  pointer-events: none;
 }
 
 .board-container {
@@ -62,6 +42,20 @@
   box-shadow:
     inset 0 0 0 1px rgba(0,0,0,0.6),
     0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* ============================================================
+   SQUARE HIGHLIGHTS
+   ============================================================ */
+
+.king-check {
+  background: radial-gradient(circle, rgba(255, 60, 60, 0.7) 10%, rgba(200, 0, 0, 0.9) 100%) !important;
+  box-shadow: inset 0 0 20px rgba(100, 0, 0, 0.9) !important;
+}
+
+.king-checkmate {
+  background: radial-gradient(circle, rgba(200, 30, 30, 0.8) 10%, rgba(150, 0, 0, 1) 100%) !important;
+  box-shadow: inset 0 0 30px rgba(50, 0, 0, 1) !important;
 }
 
 /* ============================================================
@@ -173,6 +167,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
   width: 100%;
   height: 100%;
   z-index: 10;
@@ -235,99 +230,24 @@
    BOARD THEMES — override CSS variables
    ============================================================ */
 
-/* Obsidian (new default dark theme) */
-[data-board-theme='obsidian'] {
-  --light-sq: #c8b89a;
-  --dark-sq: #3d2b1f;
-  --highlight-selected: rgba(255, 200, 50, 0.35);
-  --highlight-target:   rgba(255, 200, 50, 0.75);
-  --highlight-last:     rgba(255, 180, 30, 0.28);
-  --board-frame-bg: #120d08;
-}
-
-/* Classic Lichess */
-[data-board-theme='lichess'] {
-  --light-sq: #f0d9b5;
-  --dark-sq: #b58863;
-  --highlight-selected: rgba(20,85,30,0.5);
-  --highlight-target:   rgba(20,85,30,0.75);
-  --highlight-last:     rgba(155,199,0,0.41);
-  --board-frame-bg: #1a1410;
-}
-
-/* Blue */
-[data-board-theme='blue'] {
-  --light-sq: #dee3e6;
-  --dark-sq: #8ca2ad;
-  --highlight-selected: rgba(20,85,130,0.5);
-  --highlight-target:   rgba(20,85,130,0.75);
-  --highlight-last:     rgba(61,133,198,0.41);
-  --board-frame-bg: #0d1520;
-}
-
-/* Green */
-[data-board-theme='green'] {
-  --light-sq: #ffffdd;
-  --dark-sq: #86a666;
-  --highlight-selected: rgba(20,85,30,0.5);
-  --highlight-target:   rgba(20,85,30,0.75);
-  --highlight-last:     rgba(155,199,0,0.41);
-  --board-frame-bg: #0e1808;
-}
-
-/* Walnut wood */
-[data-board-theme='wood'] {
-  --light-sq: #eedcbe;
-  --dark-sq: #9b5e2a;
-  --highlight-selected: rgba(200,130,20,0.45);
-  --highlight-target:   rgba(200,130,20,0.75);
-  --highlight-last:     rgba(255,200,80,0.38);
-  --board-frame-bg: #1a0d00;
-}
-
-/* Pearl (Classic Black & White theme) */
-[data-board-theme='pearl'] {
-  --light-sq: #f0f2f5;
-  --dark-sq: #2e313a;
+/* Pure (Black & White) */
+[data-board-theme='pure'] {
+  --light-sq: #ffffff;
+  --dark-sq: #222222;
   --highlight-selected: rgba(98, 153, 36, 0.45);
   --highlight-target:   rgba(98, 153, 36, 0.75);
   --highlight-last:     rgba(98, 153, 36, 0.25);
-  --board-frame-bg: #121316;
+  --board-frame-bg: #111111;
 }
+[data-board-theme='pure'] .light .coordinate-label { color: rgba(34, 34, 34, 0.8); }
+[data-board-theme='pure'] .dark  .coordinate-label { color: rgba(255, 255, 255, 0.8); }
 
-/* Override frame bg for Pearl B&W */
-[data-board-theme='pearl'] .board-outer {
-  background: #1c1d22;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.05),
-    0 12px 40px rgba(0,0,0,0.65),
-    inset 0 1px 0 rgba(255,255,255,0.08);
+/* Cream */
+[data-board-theme='cream'] {
+  --light-sq: #f4f1e1;
+  --dark-sq: #7b9071;
+  --highlight-selected: rgba(20,85,30,0.5);
+  --highlight-target:   rgba(20,85,30,0.75);
+  --highlight-last:     rgba(155,199,0,0.41);
+  --board-frame-bg: #4a5a42;
 }
-[data-board-theme='pearl'] .board-outer::before {
-  background: repeating-linear-gradient(
-    87deg,
-    transparent, transparent 2px,
-    rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px
-  );
-}
-[data-board-theme='pearl'] .coordinate-label { opacity: 0.75; }
-[data-board-theme='pearl'] .light .coordinate-label { color: rgba(46, 49, 58, 0.6); }
-[data-board-theme='pearl'] .dark  .coordinate-label { color: rgba(240, 242, 245, 0.65); }
-
-/* Midnight (deep dark purple-black) */
-[data-board-theme='midnight'] {
-  --light-sq: #2a2a3e;
-  --dark-sq: #111120;
-  --highlight-selected: rgba(120,80,255,0.55);
-  --highlight-target:   rgba(120,80,255,0.85);
-  --highlight-last:     rgba(80,120,255,0.35);
-  --board-frame-bg: #060610;
-}
-[data-board-theme='midnight'] .board-outer {
-  box-shadow:
-    0 0 0 1px rgba(120,80,255,0.15),
-    0 12px 50px rgba(0,0,0,0.9),
-    inset 0 1px 0 rgba(120,80,255,0.1);
-}
-[data-board-theme='midnight'] .light .coordinate-label { color: rgba(150,130,255,0.6); }
-[data-board-theme='midnight'] .dark  .coordinate-label { color: rgba(80,60,200,0.5); }

@@ -12,8 +12,8 @@ interface EvalBarProps {
 // Sigmoid mapping: centipawns → white percentage
 // Uses sigmoid so ±200cp ≈ 60/40, ±800cp ≈ 85/15 — feels natural like Lichess
 function cpToPercent(cp: number): number {
-  // Sigmoid mapping — matches Lichess feel: ±200cp ≈ 60/40, ±800cp ≈ 85/15
-  const pct = 50 + 50 * (2 / (1 + Math.exp(-0.006 * cp)) - 1);
+  // Official Stockfish WDL mapping scalar: 0.00368208
+  const pct = 50 + 50 * (2 / (1 + Math.exp(-0.00368208 * cp)) - 1);
   return Math.max(3, Math.min(97, pct));
 }
 

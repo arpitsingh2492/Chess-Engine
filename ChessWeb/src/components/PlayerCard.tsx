@@ -126,7 +126,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           </div>
         </div>
 
-        {/* RIGHT SIDE — captured pieces inline */}
+        {/* RIGHT SIDE — captured pieces below name */}
         <div className="player-card-captures">
           {captured.map((c) => (
             <span key={c.type} className={`captured-group color-${capturedColor}`}>
