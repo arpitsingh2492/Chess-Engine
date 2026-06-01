@@ -86,33 +86,19 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
       );
     }
 
-    const { score, depth, pv } = engineResult;
-    const evalStr = getEvalString(score);
-    const evalClass = getEvalClass(score);
+    const { pv } = engineResult;
     const bestMove = pv && pv.length > 0 ? pv[0] : null;
-
     return (
       <div className="analysis-content">
-        <div className="analysis-eval-row">
-          <div className={`analysis-eval-badge ${evalClass}`}>
-            {evalStr}
-          </div>
-          <div className="analysis-engine-meta">
-            <span className="engine-name-label">Astra 1.0</span>
-            <span className="engine-depth-label">depth {depth || '—'}</span>
-          </div>
-        </div>
-
-        {bestMove && (
+        {bestMove ? (
           <div className="analysis-best-move-row">
-            <span className="best-move-label">Best:</span>
+            <span className="best-move-label">Best Move:</span>
             <span className="best-move-san">{bestMove}</span>
           </div>
-        )}
-
-        {pv && pv.length > 0 && (
-          <div className="analysis-pv-line">
-            {formatPV(pv, startMoveNum, isWhiteTurn)}
+        ) : (
+          <div className="analysis-loading">
+            <span className="analysis-spinner">⟳</span>
+            {isThinking ? 'Analyzing...' : 'Ready'}
           </div>
         )}
       </div>
