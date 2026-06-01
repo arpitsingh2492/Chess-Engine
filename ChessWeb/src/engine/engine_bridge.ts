@@ -43,6 +43,7 @@ export async function loadEngine(): Promise<void> {
     if (!moduleLoading) {
         moduleLoading = (async () => {
             // Dynamic import of the Emscripten-generated JS module
+            // @ts-ignore - dynamic import, file might not exist during TS compilation
             const ChessEngineModule = (await import('./chess_engine.js')).default;
             const instance = await ChessEngineModule();
             return instance as ChessEngineModule;
