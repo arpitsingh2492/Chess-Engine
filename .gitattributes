@@ -1,0 +1,9 @@
+# Mark Emscripten-generated JavaScript as generated (not counted in language stats)
+ChessWeb/public/engine/chess_engine.js linguist-generated=true
+
+# Mark WASM binary as generated
+ChessWeb/public/engine/chess_engine.wasm linguist-generated=true
+
+# Ensure C++ files are properly classified
+engine/src/*.cpp linguist-language=C++
+engine/include/*.h linguist-language=C++
