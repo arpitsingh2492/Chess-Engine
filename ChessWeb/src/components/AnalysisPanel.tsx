@@ -43,12 +43,23 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         
         {variations && variations.length > 0 ? (
           <div className="analysis-variations-list">
-            {variations.map((v, idx) => (
-              <div key={idx} className="analysis-variation-row">
-                <span className="analysis-var-score neu">{idx + 1}.</span>
-                <span className="analysis-var-pv">{v.pv[0]}</span>
-              </div>
-            ))}
+            {variations.map((v, idx) => {
+              let scoreStr = '';
+              if (v.score > 900000) {
+                scoreStr = `M${999999 - v.score}`;
+              } else if (v.score < -900000) {
+                scoreStr = `-M${999999 + v.score}`;
+              } else {
+                const val = v.score / 100;
+                scoreStr = (val > 0 ? '+' : '') + val.toFixed(2);
+              }
+              return (
+                <div key={idx} className="analysis-variation-row">
+                  <span className="analysis-var-score neu" style={{ width: '50px', display: 'inline-block' }}>{scoreStr}</span>
+                  <span className="analysis-var-pv">{v.pv[0]}</span>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="analysis-loading">

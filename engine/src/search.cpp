@@ -30,7 +30,6 @@ SearchResult SearchEngine::search(Board& board, int timeLimitMs, int maxDepth) {
     timeLimit_ = timeLimitMs;
     isTimeout_ = false;
     nodesSearched_ = 0;
-    excludedRootMoves_.clear();
 
     // Initialize PV tables with room for quiescence extensions
     int maxPly = maxDepth + 30;

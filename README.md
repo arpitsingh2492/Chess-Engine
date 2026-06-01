@@ -84,17 +84,12 @@ cmake --build . -j4
 .\chess_test.exe
 ```
 
-**Option B: Using Advanced NNUE Evaluation Locally**
-The web app automatically uses the compiled NNUE network. However, to run advanced analysis locally via CLI:
-1. Ensure the `.nnue` training file (trained via Stockfish datasets) is present.
-2. Run the engine in your terminal and pass advanced commands to load the network:
-```bash
-astra_engine
-uci
-setoption name EvalFile value /path/to/network.nnue
-isready
-position startpos
-go depth 24
+**Option B: WebAssembly (WASM) Compilation**
+The web app automatically uses the compiled C++ WASM module. If you make changes to the C++ engine, you can recompile it for the web using Emscripten:
+```powershell
+emcc -O3 -std=c++17 src/*.cpp -o astra_engine.js \
+  -s EXPORTED_FUNCTIONS=[_engine_search,_engine_search_multipv,...] \
+  -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_ES6=1 -s MODULARIZE=1
 ```
 
 ---
