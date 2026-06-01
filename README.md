@@ -1,56 +1,34 @@
-# Astra Chess Engine ♞
+# Astra Chess ♞
 
-> **A high-performance custom chess engine written in C++ from scratch, compiled to WebAssembly, and running natively in your browser.**
+> **A beautifully crafted, high-performance chess application featuring a modern React interface powered by the world-class Stockfish 18 WebAssembly engine.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Play%20Now-629924?style=for-the-badge)](https://arpitsingh2492.github.io/astra-chess/)
-[![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
 [![WebAssembly](https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white)](https://webassembly.org/)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 
 ---
 
 ## ✨ Overview
 
-Astra Chess is a **high-speed, handcrafted chess engine** built fundamentally in **C++**. It avoids any external chess libraries (like Stockfish or chess.js). Every rule, move generation, and evaluation heuristic is computed by custom logic written in C++. 
+Astra Chess is a premium web-based chess experience that brings grandmaster-level play directly into your browser. 
 
-To bring this native performance to the web without requiring a backend server, the engine is compiled into **WebAssembly (WASM)** using Emscripten. The beautiful UI is constructed in React/TypeScript, which interfaces with the compiled C++ engine inside a Web Worker.
+The application pairs a meticulously designed, distraction-free **React / TypeScript frontend** with the immense calculating power of **Stockfish 18 (NNUE)** compiled natively to WebAssembly (WASM). This allows the application to evaluate millions of positions per second completely client-side, requiring no backend servers.
 
-This project showcases **systems programming**, **advanced search algorithms**, and **C++ / WebAssembly interop**.
-
----
-
-## 🔬 Core Engine Architecture (C++)
-
-The engine is engineered for maximum node calculation speed, heavily utilizing bitwise operations and efficient memory management in C++17.
-
-### Search Algorithm (`engine/src/search.cpp`)
-| Technique | Description |
-|---|---|
-| **Alpha-Beta Pruning** | The core minimax tree search optimized with strict α-β cutoffs, drastically reducing the search space. |
-| **Iterative Deepening** | Progressively searches deeper plies until a time limit is hit, ensuring the engine always has a "best move" ready. |
-| **Quiescence Search** | Explores noisy leaf nodes (all captures) to avoid the horizon effect and ensure tactical stability. |
-| **MVV-LVA Ordering** | "Most Valuable Victim – Least Valuable Attacker" heuristic ensures captures are checked in optimal order for maximum pruning efficiency. |
-
-### Board & Move Generation (`engine/src/movegen.cpp`)
-| Feature | Implementation |
-|---|---|
-| **Move Generation** | Completely custom pseudo-legal and legal move generation algorithms. Handles all chess rules (En Passant, Castling, Promotions). |
-| **State Reversibility** | Fast `executeMove` and `undoMove` functions that use a lightweight snapshot history to traverse the search tree without expensive board cloning. |
-| **Check Detection** | Optimized `isSquareAttacked` raycasting and step-checks to rapidly verify king safety. |
-
-### Evaluation (`engine/src/eval.cpp`)
-| Feature | Implementation |
-|---|---|
-| **Material Evaluation** | Weighted standard pieces: P=100, N=320, B=330, R=500, Q=900. |
-| **Piece-Square Tables (PST)** | Positional static evaluation rewarding center control for knights, open diagonals for bishops, and back-rank safety for kings. |
+### Key Features
+- **Stockfish 18 NNUE Integration**: Play against the strongest chess engine in the world, running directly in your browser via WebAssembly Web Workers.
+- **Dynamic Difficulty**: Choose between different bot levels (e.g. 800 Elo to 3200+ Elo) for casual games or hardcore analysis.
+- **Premium UI/UX**: A highly symmetric, distraction-free design built from scratch with custom CSS and a modern mesh-gradient aesthetic.
+- **Light & Dark Mode**: Seamlessly toggle between Light and Dark themes that persist across sessions.
+- **Live Position Evaluation**: Real-time evaluation bar and best-move analysis during gameplay.
 
 ---
 
 ## 🚀 Running Locally
 
-The easiest way to run the application is to use the built-in TypeScript fallback engine. **You do not need to install any C++ tools or compile anything to play the game.**
+You do not need to install any C++ tools or compile anything to play the game. The Stockfish WebAssembly binary is bundled and ready to go.
 
-### Quick Start (Recommended)
+### Quick Start
 You only need [Node.js](https://nodejs.org/) installed.
 
 ```powershell
@@ -68,69 +46,35 @@ npm run dev
 
 ---
 
-## ⚙️ Advanced: Building the C++ Engine (Optional)
-
-If you want the maximum node-calculation performance, you can compile the native C++ engine into WebAssembly. If you skip this, the web app simply falls back to the identical logic written in TypeScript.
-
-**Option A: Build for Web (WASM via Emscripten)**
-*Requires [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) and [CMake](https://cmake.org/download/) installed.*
-```powershell
-cd engine
-mkdir build_wasm
-cd build_wasm
-emcmake cmake ..
-emmake make -j4
-
-# Copy the compiled engine to the web directory (Windows PowerShell)
-Copy-Item chess_engine.js, chess_engine.wasm -Destination ..\..\ChessWeb\src\engine\
-```
-
-**Option B: Build Native (For Testing & Benchmarking)**
-*Requires CMake and a C++ compiler (g++, clang, MSVC).*
-```powershell
-cd engine
-mkdir build
-cd build
-cmake ..
-cmake --build . -j4
-# Run the native test harness
-.\chess_test.exe
-```
-
----
-
 ## 🗂️ Project Structure
 
 ```text
 Chess-Engine/
-├── engine/                 # ⚙️ Core C++ Chess Engine
-│   ├── CMakeLists.txt      # Build configuration for Native & WASM
-│   ├── include/            # C++ Headers (types, board, movegen, eval, search)
-│   └── src/                # C++ Implementations
-│       ├── main.cpp        # Native CLI testing and benchmarking harness
-│       └── wasm_api.cpp    # C-linkage exports for WebAssembly interop
-│
 └── ChessWeb/               # 🌐 React / TypeScript Frontend
-    ├── src/engine/         # Web Worker bridge & WASM module host
-    ├── src/components/     # UI Components (ChessBoard, EvalBar, etc.)
-    └── package.json        # Build scripts
+    ├── public/             
+    │   └── stockfish/      # Precompiled Stockfish 18 WASM & JS glue code
+    ├── src/
+    │   ├── components/     # UI Components (ChessBoard, EvalBar, AnalysisPanel)
+    │   ├── contexts/       # React Contexts (ThemeContext for Light/Dark mode)
+    │   ├── engine/         # Web Worker bridge (engine.worker.ts, movegen, etc.)
+    │   └── styles/         # Custom global and component-scoped CSS variables
+    └── package.json        # Build scripts for Vite / Vercel
 ```
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **C++17**: The raw brain of the engine.
-- **Emscripten**: Compiles the C++ engine into `.wasm` and generates JS glue code.
-- **TypeScript**: Provides type safety for the Web Worker bridging layer and UI.
-- **React 19 & Vite**: High-performance UI rendering and local development server.
-- **Web Workers**: Runs the WASM engine on a background thread so the UI never freezes.
+- **React 19 & TypeScript**: Provides a robust, type-safe architecture for building the complex interactive board and game states.
+- **Vite**: Ultra-fast frontend tooling and bundling.
+- **Web Workers**: Runs the Stockfish WASM engine entirely on a background thread so the UI never freezes during deep searches.
+- **Stockfish 18 (WASM)**: The core AI calculating engine, utilizing Neural Network Updated Evaluation (NNUE) for state-of-the-art accuracy.
 
 ---
 
 ## 🤝 Contributing & Feedback
 
-Astra Chess is entirely open-source, and contributions are highly welcome! Whether you are a systems engineer looking to optimize bitwise operations, a frontend developer wanting to polish the UI, or a chess enthusiast with ideas for better evaluation heuristics, your input is appreciated.
+Astra Chess is entirely open-source, and contributions are highly welcome! Whether you are a frontend developer wanting to polish the UI, or a chess enthusiast with ideas for new features, your input is appreciated.
 
 * **Open for Contributions:** Feel free to fork the repository, open issues, or submit pull requests (PRs).
 * **Feedback & Comments:** Ideas, critiques, and suggestions are always appreciated. Reach out via GitHub Issues or connect with me on LinkedIn!
@@ -149,7 +93,3 @@ Astra Chess is entirely open-source, and contributions are highly welcome! Wheth
 ## 📄 License
 
 MIT License — feel free to fork, study, and build on it.
-
----
-
-*"No Stockfish. No chess.js. Every node calculated natively by code written from scratch."*
