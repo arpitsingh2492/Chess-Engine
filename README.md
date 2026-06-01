@@ -46,22 +46,34 @@ The engine is engineered for maximum node calculation speed, heavily utilizing b
 
 ---
 
-## 🚀 Building & Running Locally
+## 🚀 Running Locally
 
-To run the engine locally, you will need **Node.js** and **CMake**. To build the WebAssembly module, you need the **Emscripten SDK (emsdk)**. 
+The easiest way to run the application is to use the built-in TypeScript fallback engine. **You do not need to install any C++ tools or compile anything to play the game.**
 
-### 1. Clone the repository
-```bash
+### Quick Start (Recommended)
+You only need [Node.js](https://nodejs.org/) installed.
+
+```powershell
+# 1. Clone the repository
 git clone https://github.com/arpitsingh2492/Chess-Engine.git
-cd Chess-Engine
+cd Chess-Engine/ChessWeb
+
+# 2. Install dependencies
+npm install
+
+# 3. Start development server
+npm run dev
+# -> Open http://localhost:5173
 ```
 
-### 2. Build the C++ Engine (Optional)
+---
 
-> **Note:** The web app comes with a fully functional TypeScript fallback engine. Building the C++ WebAssembly module is **optional** but highly recommended for maximum performance.
+## ⚙️ Advanced: Building the C++ Engine (Optional)
+
+If you want the maximum node-calculation performance, you can compile the native C++ engine into WebAssembly. If you skip this, the web app simply falls back to the identical logic written in TypeScript.
 
 **Option A: Build for Web (WASM via Emscripten)**
-*Requires [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) and [CMake](https://cmake.org/download/) installed and activated in your terminal.*
+*Requires [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) and [CMake](https://cmake.org/download/) installed.*
 ```powershell
 cd engine
 mkdir build_wasm
@@ -71,9 +83,6 @@ emmake make -j4
 
 # Copy the compiled engine to the web directory (Windows PowerShell)
 Copy-Item chess_engine.js, chess_engine.wasm -Destination ..\..\ChessWeb\src\engine\
-
-# (Or on Linux/Mac)
-# cp chess_engine.js chess_engine.wasm ../../ChessWeb/src/engine/
 ```
 
 **Option B: Build Native (For Testing & Benchmarking)**
@@ -86,15 +95,6 @@ cmake ..
 cmake --build . -j4
 # Run the native test harness
 .\chess_test.exe
-```
-
-### 3. Run the Web Interface
-You do not need to build the C++ engine to run the UI. If the WASM file is missing, it will seamlessly fall back to the TypeScript engine.
-```powershell
-cd ../ChessWeb
-npm install
-npm run dev
-# -> Open http://localhost:5173
 ```
 
 ---
