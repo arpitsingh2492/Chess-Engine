@@ -781,21 +781,28 @@ input:checked + .slider:before { transform: translateX(18px); background-color: 
 .engine-name-label { font-size: 0.7rem; font-weight: 700; color: #629924; text-transform: uppercase; letter-spacing: 0.5px; }
 .engine-depth-label { font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); }
 
-.analysis-best-move-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 5px 8px;
-  background: rgba(98,153,36,0.06);
-  border-left: 2px solid #629924;
-  border-radius: 0 4px 4px 0;
+.analysis-variations-list {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 4px;
 }
-.best-move-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
-.best-move-san { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; color: #78be28; }
+.analysis-variation-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 4px 6px;
+  background: var(--bg-surface-elevated, rgba(255,255,255,0.02));
+  border-radius: 4px;
+}
+.analysis-var-score {
+  font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700;
+  width: 42px; flex-shrink: 0; text-align: right;
+  padding-top: 2px;
+}
+.analysis-var-score.pos { color: #78be28; }
+.analysis-var-score.neg { color: #e05555; }
+.analysis-var-score.neu { color: var(--text-muted); }
 
-.analysis-pv-line { display: flex; flex-wrap: wrap; gap: 3px; font-size: 0.82rem; line-height: 1.5; padding-top: 4px; }
-.pv-move-num { color: var(--text-muted); font-weight: 600; font-family: var(--font-mono); font-size: 0.75rem; }
-.pv-move { font-family: var(--font-mono); color: var(--text-secondary); padding: 0 3px; border-radius: 3px; transition: background 0.1s; cursor: default; }
-.pv-move:hover { background: var(--bg-hover); color: var(--text-primary); }
-.pv-move.pv-best-move { color: var(--text-primary); font-weight: 700; }
+.analysis-var-pv {
+  font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary);
+  line-height: 1.4; word-break: break-word;
+}
 
 .analysis-loading { font-size: 0.82rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; padding: 6px 0; }
 .analysis-spinner { display: inline-block; animation: spin 1.2s linear infinite; font-size: 1rem; color: #629924; }

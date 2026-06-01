@@ -15,11 +15,12 @@ let isSearching = false;
 let searchStartTime = 0;
 let isWhiteToMove = true;
 
+import { Variation } from '../types';
+
 // Parsed data from info lines
 let currentDepth = 0;
-let currentScore = 0;
 let currentNodes = 0;
-let currentPv: string[] = [];
+let currentVariations: Variation[] = [];
 
 // Create a local board just for move parsing
 const board = new BoardState();
@@ -40,30 +41,48 @@ function initStockfish() {
       const nodesMatch = line.match(/nodes (\d+)/);
       if (nodesMatch) currentNodes = parseInt(nodesMatch[1], 10);
 
+      const multipvMatch = line.match(/multipv (\d+)/);
+      const pvIndex = multipvMatch ? parseInt(multipvMatch[1], 10) - 1 : 0;
+
       const scoreMatch = line.match(/score cp (-?\d+)/);
       const mateMatch = line.match(/score mate (-?\d+)/);
+      let score = 0;
+      let hasScore = false;
       if (scoreMatch) {
-        currentScore = parseInt(scoreMatch[1], 10);
+        score = parseInt(scoreMatch[1], 10);
+        hasScore = true;
       } else if (mateMatch) {
         const mateIn = parseInt(mateMatch[1], 10);
-        currentScore = mateIn > 0 ? 999999 : -999999;
+        score = mateIn > 0 ? 999999 : -999999;
+        hasScore = true;
       }
       
       const pvMatch = line.match(/pv (.+)/);
+      let pv: string[] = [];
       if (pvMatch) {
-        currentPv = pvMatch[1].split(' ');
+        pv = pvMatch[1].trim().split(' ');
       }
 
-      // Stream intermediate evaluation to UI for instant bar updates
+      if (!currentVariations[pvIndex]) {
+        currentVariations[pvIndex] = { score: 0, pv: [] };
+      }
+      if (hasScore) {
+        currentVariations[pvIndex].score = isWhiteToMove ? score : -score;
+      }
+      if (pvMatch) {
+        currentVariations[pvIndex].pv = pv;
+      }
+
+      // Stream intermediate evaluation to UI for instant updates
       if (activeRequest) {
-        const scoreRelativeToWhite = isWhiteToMove ? currentScore : -currentScore;
         ctx.postMessage({
           move: null,
-          score: scoreRelativeToWhite,
+          score: currentVariations[0]?.score || 0,
           depth: currentDepth,
           nodes: currentNodes,
           timeMs: Date.now() - searchStartTime,
-          pv: currentPv,
+          pv: currentVariations[0]?.pv || [],
+          variations: [...currentVariations],
           type: 'info' // Mark as an intermediate info update
         });
       }
@@ -101,22 +120,20 @@ function initStockfish() {
         }
 
         const elapsed = Date.now() - searchStartTime;
-        
-        // Stockfish returns score relative to side to move
-        const scoreRelativeToWhite = isWhiteToMove ? currentScore : -currentScore;
 
         const reqType = activeRequest.type;
         const reqMinDelay = activeRequest.minDelay;
         activeRequest = null; // Clear immediately so new requests can cancel properly
-
+        
         const postResult = () => {
           ctx.postMessage({
             move: moveObj,
-            score: scoreRelativeToWhite,
+            score: currentVariations[0]?.score || 0,
             depth: currentDepth,
             nodes: currentNodes,
             timeMs: elapsed,
-            pv: currentPv,
+            pv: currentVariations[0]?.pv || [],
+            variations: [...currentVariations],
             type: reqType
           });
         };
@@ -157,9 +174,8 @@ function startSearch(requestData: any) {
 
   searchStartTime = Date.now();
   currentDepth = 0;
-  currentScore = 0;
   currentNodes = 0;
-  currentPv = [];
+  currentVariations = [];
 
   sfWorker!.postMessage(`position fen ${fen}`);
   
@@ -168,8 +184,10 @@ function startSearch(requestData: any) {
     if (botLevel === '800') skillLevel = 0;
     if (botLevel === '1500') skillLevel = 5;
     sfWorker!.postMessage(`setoption name Skill Level value ${skillLevel}`);
+    sfWorker!.postMessage(`setoption name MultiPV value 1`);
   } else {
     sfWorker!.postMessage(`setoption name Skill Level value 20`);
+    sfWorker!.postMessage(`setoption name MultiPV value 3`);
   }
 
   let limits = '';

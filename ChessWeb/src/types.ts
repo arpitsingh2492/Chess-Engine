@@ -55,13 +55,19 @@ export interface GameHistoryEntry {
   fenAfter: string;
 }
 
+export interface Variation {
+  score: number;
+  pv: string[];
+}
+
 export interface EngineResult {
-  move: Move;
+  move: Move | null;
   score: number;
   depth: number;
   nodes: number;
   timeMs: number;
-  pv: string[]; // Principal variation as SAN strings
+  pv: string[];
+  variations?: Variation[];
 }
 
 export type BotLevel = '800' | '1500' | '2500';
