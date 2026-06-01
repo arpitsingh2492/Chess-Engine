@@ -96,11 +96,6 @@ export const LandingPage: React.FC = () => {
             <span className="hero-title-chess"> Chess</span>
           </h1>
 
-          <p className="hero-subtitle">
-            A high-performance custom chess engine — built from scratch in C++ and compiled to WebAssembly,<br />
-            featuring advanced search algorithms and ML/DL inspired evaluation.
-          </p>
-
           <div className="hero-tagline">
             <span>C++17</span>
             <span>WebAssembly</span>
