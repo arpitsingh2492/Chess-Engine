@@ -1,0 +1,300 @@
+/* ══════════════════════════════════════════════
+   LANDING PAGE — Astra Chess
+   ══════════════════════════════════════════════ */
+
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  background: var(--bg-page);
+}
+
+/* Animated canvas background */
+.landing-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Gradient spotlight glows */
+.landing-glow {
+  position: fixed;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+.landing-glow-tl {
+  width: 500px; height: 500px;
+  top: -120px; left: -120px;
+  background: radial-gradient(circle, rgba(98,153,36,0.12) 0%, transparent 70%);
+}
+.landing-glow-br {
+  width: 600px; height: 600px;
+  bottom: -150px; right: -150px;
+  background: radial-gradient(circle, rgba(91,155,213,0.1) 0%, transparent 70%);
+}
+
+/* ── Content ── */
+.landing-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 24px 20px;
+  gap: 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── HERO ── */
+.hero-section {
+  text-align: center;
+  animation: slideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* "Chess Engine · TypeScript · Open Source" badge */
+.engine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 99px;
+  border: 1px solid rgba(98,153,36,0.35);
+  background: rgba(98,153,36,0.08);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #629924;
+  letter-spacing: 0.3px;
+  margin-bottom: 32px;
+  font-family: var(--font-mono);
+}
+.engine-badge-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #629924;
+  box-shadow: 0 0 6px rgba(98,153,36,0.8);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.engine-logo {
+  width: 110px; height: 110px;
+  margin: 0 auto 28px;
+  position: relative;
+  animation: logoFloat 4s ease-in-out infinite;
+}
+.engine-logo::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(98,153,36,0.2) 0%, transparent 70%);
+  animation: pulse 3s ease infinite;
+}
+.engine-logo svg {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 0 24px rgba(98,153,36,0.55));
+}
+
+/* Title: "Astra Chess" with two color stops */
+.hero-title {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: -2.5px;
+  line-height: 1;
+  margin: 0 0 20px;
+  font-family: var(--font-primary);
+}
+.hero-title-astra {
+  background: linear-gradient(135deg, #78be28, #629924);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-title-chess {
+  background: linear-gradient(135deg, #c8d8e8, #a0b8d0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  color: var(--text-secondary);
+  margin: 0 0 28px;
+  font-weight: 400;
+  line-height: 1.6;
+  max-width: 560px;
+}
+
+.hero-tagline {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0 0 44px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.hero-tagline span {
+  padding: 4px 10px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s, color 0.2s;
+}
+.hero-tagline span:hover {
+  border-color: rgba(98,153,36,0.5);
+  color: #629924;
+}
+
+/* CTA Buttons row */
+.hero-cta-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.play-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 44px;
+  background: linear-gradient(135deg, #629924, #4a8c1a);
+  color: white; font-size: 1.1rem; font-weight: 700;
+  border: none; border-radius: var(--radius-lg);
+  cursor: pointer; text-decoration: none;
+  font-family: var(--font-primary);
+  box-shadow: 0 4px 20px rgba(98,153,36,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  letter-spacing: 0.2px;
+}
+.play-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(98,153,36,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+  background: linear-gradient(135deg, #78be28, #5a9c20);
+}
+.play-btn:active { transform: translateY(-1px); }
+.play-btn svg { width: 20px; height: 20px; }
+
+.github-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 28px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 1rem; font-weight: 500;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  font-family: var(--font-primary);
+  transition: all 0.2s;
+}
+.github-btn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* ── TECH SPECS ── */
+.tech-grid-section { width: 100%; animation: slideUp 0.8s ease 0.2s both; }
+.section-label {
+  text-align: center; font-size: 0.75rem; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted); margin: 0 0 20px;
+}
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+@media (max-width: 768px) { .tech-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .tech-grid { grid-template-columns: 1fr; } }
+
+.tech-card {
+  background: var(--bg-card);
+  padding: 20px 24px;
+  transition: background 0.2s;
+}
+.tech-card:hover { background: var(--bg-hover); }
+.tech-card-value {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #629924;
+  margin-bottom: 4px;
+}
+.tech-card-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ── FEATURES ── */
+.features-section { width: 100%; animation: slideUp 0.8s ease 0.35s both; }
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+@media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(98,153,36,0.5);
+  box-shadow: 0 12px 40px rgba(98,153,36,0.12);
+}
+.feature-card-icon { font-size: 2.2rem; margin-bottom: 14px; display: block; }
+.feature-card h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 10px; color: var(--text-primary); }
+.feature-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+
+/* ── FOOTER ── */
+.landing-footer {
+  position: relative; z-index: 1;
+  text-align: center; padding: 32px 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+.landing-footer p { color: var(--text-muted); font-size: 0.83rem; margin: 0; }
+.landing-footer .footer-sub { margin-top: 6px; font-size: 0.75rem; opacity: 0.6; font-family: var(--font-mono); }
+.landing-footer a { color: var(--accent-green); text-decoration: none; transition: color 0.15s; }
+.landing-footer a:hover { color: #78be28; }
+
+/* ── ANIMATIONS ── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1; transform: scale(1.05); }
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
