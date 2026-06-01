@@ -1,4 +1,0 @@
-# Ignore the frontend web code from GitHub's language statistics
-# This forces the repository to be classified primarily as C++
-ChessWeb/** linguist-vendored=true
-package-lock.json linguist-generated=true
