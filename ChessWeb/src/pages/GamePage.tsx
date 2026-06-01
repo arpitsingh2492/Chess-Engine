@@ -103,7 +103,7 @@ export const GamePage: React.FC = () => {
     if (!workerRef.current) return;
 
     workerRef.current.onmessage = (e: MessageEvent) => {
-      const { move, score, depth, nodes, timeMs, pv, type } = e.data;
+      const { move, score, depth, nodes, timeMs, pv, type, variations } = e.data;
 
       if (type === 'game') {
         // Only execute move if it's the AI's turn playing and game is active
@@ -113,7 +113,7 @@ export const GamePage: React.FC = () => {
         setAiIsThinking(false);
       } else {
         // 'view_analysis' type — update the eval display
-        setEngineResult({ move, score, depth, nodes, timeMs, pv });
+        setEngineResult({ move, score, depth, nodes, timeMs, pv, variations });
       }
     };
   }, [gameResult, viewIndex, playerColor, botLevel, isSetup]);

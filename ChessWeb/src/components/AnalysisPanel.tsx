@@ -47,7 +47,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     return (
       <div className="analysis-content">
         <div className="analysis-engine-meta">
-          <span className="engine-name-label">Stockfish 18</span>
+          <span className="engine-name-label">Astra Engine</span>
           <span className="engine-depth-label">Depth {depth || '—'}</span>
         </div>
         
