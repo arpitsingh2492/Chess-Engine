@@ -74,14 +74,20 @@ export const GamePage: React.FC = () => {
   const audioCheck = useRef<HTMLAudioElement | null>(null);
   const audioVictory = useRef<HTMLAudioElement | null>(null);
   const audioDefeat = useRef<HTMLAudioElement | null>(null);
+  const audioDraw = useRef<HTMLAudioElement | null>(null);
 
   // Initialize Web Worker and Audio
   useEffect(() => {
     audioMove.current = new Audio('/sounds/move.mp3');
     audioCapture.current = new Audio('/sounds/capture.mp3');
+    
+    // Check sound is a bit intense, lower the volume
     audioCheck.current = new Audio('/sounds/check.mp3');
+    audioCheck.current.volume = 0.35;
+    
     audioVictory.current = new Audio('/sounds/victory.mp3');
     audioDefeat.current = new Audio('/sounds/defeat.mp3');
+    audioDraw.current = new Audio('/sounds/draw.mp3');
     workerRef.current = new Worker(new URL('../engine/engine.worker.ts', import.meta.url), {
       type: 'module'
     });
@@ -287,6 +293,7 @@ export const GamePage: React.FC = () => {
       } else {
         setStatusMessage('Stalemate — Draw');
         setGameResult('stalemate');
+        audioDraw.current?.play().catch(()=>{});
       }
       return;
     }
@@ -294,12 +301,14 @@ export const GamePage: React.FC = () => {
     if (board.halfmoveClock >= 100) {
       setStatusMessage('Draw by 50-move rule');
       setGameResult('draw');
+      audioDraw.current?.play().catch(()=>{});
       return;
     }
 
     if (board.isThreefoldRepetition()) {
       setStatusMessage('Draw by threefold repetition');
       setGameResult('draw');
+      audioDraw.current?.play().catch(()=>{});
       return;
     }
 
