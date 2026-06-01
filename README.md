@@ -128,6 +128,15 @@ Chess-Engine/
 
 ---
 
+## 🤝 Contributing & Feedback
+
+Astra Chess is entirely open-source, and contributions are highly welcome! Whether you are a systems engineer looking to optimize bitwise operations, a frontend developer wanting to polish the UI, or a chess enthusiast with ideas for better evaluation heuristics, your input is appreciated.
+
+* **Open for Contributions:** Feel free to fork the repository, open issues, or submit pull requests (PRs).
+* **Feedback & Comments:** Ideas, critiques, and suggestions are always appreciated. Reach out via GitHub Issues or connect with me on LinkedIn!
+
+---
+
 ## 👤 Author
 
 **Arpit Singh**
