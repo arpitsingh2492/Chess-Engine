@@ -18,16 +18,6 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   engineResult, isThinking, showAnalysis, onToggleAnalysis 
 }) => {
 
-  const getEvalString = (score: number) => {
-    const isMate = Math.abs(score) > 90000;
-    if (isMate) {
-      const dist = Math.floor((1000000 - Math.abs(score)) / 2) + 1;
-      return score > 0 ? `M${dist}` : `-M${dist}`;
-    }
-    const cp = score / 100;
-    return cp > 0 ? `+${cp.toFixed(2)}` : cp.toFixed(2);
-  };
-
   const renderAnalysis = () => {
     if (!showAnalysis) return null;
 
@@ -55,10 +45,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           <div className="analysis-variations-list">
             {variations.map((v, idx) => (
               <div key={idx} className="analysis-variation-row">
-                <span className={`analysis-var-score ${v.score > 0 ? 'pos' : v.score < 0 ? 'neg' : 'neu'}`}>
-                  {getEvalString(v.score)}
-                </span>
-                <span className="analysis-var-pv">{v.pv.slice(0, 6).join(' ')}</span>
+                <span className="analysis-var-score neu">{idx + 1}.</span>
+                <span className="analysis-var-pv">{v.pv[0]}</span>
               </div>
             ))}
           </div>
