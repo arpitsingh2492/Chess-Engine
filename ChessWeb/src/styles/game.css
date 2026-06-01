@@ -232,6 +232,7 @@
 
 /* Board + eval bar side-by-side */
 .board-and-eval {
+  --board-size: min(calc(100vh - 280px), calc(100vw - 600px), 660px);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -246,8 +247,6 @@
   by viewport dimensions — no content inside affects it.
 */
 .board-wrapper {
-  /* Viewport calculation: nav(52) + 2 player cards(144) + padding/margins = 280px total */
-  --board-size: min(calc(100vh - 280px), calc(100vw - 600px), 660px);
   width: var(--board-size);
   height: var(--board-size);
   flex-shrink: 0;
@@ -899,14 +898,33 @@ input:checked + .slider:before { transform: translateX(18px); background-color: 
   color: var(--text-muted);
   flex-shrink: 0;
 }
-.history-nav-hint kbd {
+.nav-arrow-btn {
   background: var(--bg-card);
   border: 1px solid var(--border-strong);
-  border-radius: 3px;
-  padding: 1px 5px;
+  border-radius: 4px;
+  padding: 2px 10px;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-secondary);
+  font-size: 1rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+.nav-arrow-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+.nav-arrow-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.nav-hint-text {
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 /* ============================================================

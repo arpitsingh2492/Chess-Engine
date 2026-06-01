@@ -102,21 +102,31 @@ export const GamePage: React.FC = () => {
     };
   }, [gameResult, viewIndex, playerColor, botLevel, isSetup]);
 
+  const handlePrevMove = () => {
+    if (moveHistory.length === 0 || isSetup) return;
+    setViewIndex(prev => {
+      const current = prev === -1 ? moveHistory.length : prev;
+      return Math.max(0, current - 1);
+    });
+  };
+
+  const handleNextMove = () => {
+    if (moveHistory.length === 0 || isSetup) return;
+    setViewIndex(prev => {
+      const current = prev === -1 ? moveHistory.length : prev;
+      const next = current + 1;
+      return next >= moveHistory.length ? -1 : next;
+    });
+  };
+
   // Keyboard navigation for moves
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (moveHistory.length === 0 || isSetup) return;
       if (e.key === 'ArrowLeft') {
-        setViewIndex(prev => {
-          const current = prev === -1 ? moveHistory.length : prev;
-          return Math.max(0, current - 1);
-        });
+        handlePrevMove();
       } else if (e.key === 'ArrowRight') {
-        setViewIndex(prev => {
-          const current = prev === -1 ? moveHistory.length : prev;
-          const next = current + 1;
-          return next >= moveHistory.length ? -1 : next;
-        });
+        handleNextMove();
       } else if (e.key === 'ArrowUp') {
         setViewIndex(0);
       } else if (e.key === 'ArrowDown') {
@@ -615,7 +625,13 @@ export const GamePage: React.FC = () => {
                 {!isSetup && (
                   <>
                     <div className="history-nav-hint">
-                      <kbd>←</kbd><kbd>→</kbd> navigate moves
+                      <button className="nav-arrow-btn" onClick={handlePrevMove} disabled={moveHistory.length === 0 || viewIndex === 0} title="Previous Move">
+                        ←
+                      </button>
+                      <span className="nav-hint-text">navigate moves</span>
+                      <button className="nav-arrow-btn" onClick={handleNextMove} disabled={moveHistory.length === 0 || viewIndex === -1} title="Next Move">
+                        →
+                      </button>
                     </div>
                     <div className="sidebar-actions">
                       <button className="action-btn" onClick={handleUndo} disabled={aiIsThinking || moveHistory.length < 2 || viewIndex !== -1} title="Take back move">
