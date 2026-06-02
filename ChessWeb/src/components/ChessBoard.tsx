@@ -107,6 +107,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                     type === Piece.Rook ? 'R' :
                     type === Piece.Queen ? 'Q' :
                     type === Piece.King ? 'K' : '';
+    if (pieceTheme === 'none') return null;
     const key = (isWhite ? 'w' : 'b') + typeStr;
     return (
       <img 
