@@ -67,6 +67,30 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
+        {/* ── QUOTE SECTION ── */}
+        <section style={{ textAlign: 'center', marginTop: '80px', padding: '0 20px', maxWidth: '600px', margin: '80px auto 40px auto' }}>
+          <blockquote style={{ 
+            fontSize: '1.6rem', 
+            fontStyle: 'italic', 
+            color: 'var(--text-primary)', 
+            margin: 0, 
+            fontWeight: 300,
+            lineHeight: 1.4
+          }}>
+            "Chess is the gymnasium of the mind."
+          </blockquote>
+          <div style={{ 
+            color: 'var(--text-muted)', 
+            marginTop: '20px', 
+            fontWeight: 600, 
+            letterSpacing: '2px', 
+            textTransform: 'uppercase', 
+            fontSize: '0.8rem' 
+          }}>
+            — Blaise Pascal
+          </div>
+        </section>
+
       </div>
 
       {/* Footer */}
