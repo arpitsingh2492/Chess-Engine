@@ -13,7 +13,7 @@ import { TabPanel } from '../components/TabPanel';
 import { MoveHistory } from '../components/MoveHistory';
 import { GameSetupModal } from '../components/GameSetupModal';
 import { AnalysisPanel } from '../components/AnalysisPanel';
-import { Piece, Move, GameHistoryEntry, BoardTheme, EngineResult, BotLevel } from '../types';
+import { Piece, Move, GameHistoryEntry, BoardTheme, PieceTheme, EngineResult, BotLevel } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
 import '../styles/game.css';
 
@@ -40,6 +40,7 @@ export const GamePage: React.FC = () => {
   const [moveHistory, setMoveHistory] = useState<GameHistoryEntry[]>([]);
   const [playerColor, setPlayerColor] = useState<'white' | 'black'>('white');
   const [boardTheme, setBoardTheme] = useState<BoardTheme>('cream');
+  const [pieceTheme, setPieceTheme] = useState<PieceTheme>('cburnett');
   const [botLevel, setBotLevel] = useState<BotLevel>('1500');
 
   // App state
@@ -543,24 +544,45 @@ export const GamePage: React.FC = () => {
             {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
           </button>
 
-          {/* Board theme switcher */}
-          <div className="theme-switcher" title="Board theme">
-            {([
-              { id: 'pure',  light: '#ffffff', dark: '#222222',  label: 'Pure' },
-              { id: 'cream', light: '#f4f1e1', dark: '#7b9071',  label: 'Cream' }
-            ] as { id: BoardTheme; light: string; dark: string; label: string }[]).map(t => (
-              <div
-                key={t.id}
-                className={`theme-swatch ${boardTheme === t.id ? 'active' : ''}`}
-                title={t.label}
-                onClick={() => setBoardTheme(t.id)}
-              >
-                <div className="theme-swatch-cell" style={{ background: t.light }} />
-                <div className="theme-swatch-cell" style={{ background: t.dark }} />
-                <div className="theme-swatch-cell" style={{ background: t.dark }} />
-                <div className="theme-swatch-cell" style={{ background: t.light }} />
-              </div>
-            ))}
+          <div className="theme-selectors">
+            {/* Board theme switcher */}
+            <div className="theme-switcher" title="Board theme">
+              {([
+                { id: 'pure',  light: '#ffffff', dark: '#222222',  label: 'Pure' },
+                { id: 'cream', light: '#f4f1e1', dark: '#7b9071',  label: 'Cream' },
+                { id: 'wood',  light: '#E2C792', dark: '#A47348',  label: 'Wood' },
+                { id: 'blue',  light: '#dee3e6', dark: '#8ca2ad',  label: 'Blue' },
+                { id: 'green', light: '#eeeed2', dark: '#769656',  label: 'Green' },
+                { id: 'grey',  light: '#cccccc', dark: '#888888',  label: 'Grey' },
+                { id: 'purple',light: '#e5daea', dark: '#a684b5',  label: 'Purple' }
+              ] as { id: BoardTheme; light: string; dark: string; label: string }[]).map(t => (
+                <div
+                  key={t.id}
+                  className={`theme-swatch ${boardTheme === t.id ? 'active' : ''}`}
+                  title={t.label}
+                  onClick={() => setBoardTheme(t.id)}
+                >
+                  <div className="theme-swatch-cell" style={{ background: t.light }} />
+                  <div className="theme-swatch-cell" style={{ background: t.dark }} />
+                  <div className="theme-swatch-cell" style={{ background: t.dark }} />
+                  <div className="theme-swatch-cell" style={{ background: t.light }} />
+                </div>
+              ))}
+            </div>
+
+            {/* Piece theme switcher */}
+            <div className="piece-theme-switcher" title="Piece style">
+              {(['cburnett', 'merida', 'alpha'] as PieceTheme[]).map(p => (
+                <div
+                  key={p}
+                  className={`piece-swatch ${pieceTheme === p ? 'active' : ''}`}
+                  title={p}
+                  onClick={() => setPieceTheme(p)}
+                >
+                  <img src={`/pieces/${p}/wN.svg`} alt={p} style={{ width: '100%', height: '100%', objectFit: 'contain' }} draggable={false} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </nav>
@@ -595,16 +617,17 @@ export const GamePage: React.FC = () => {
                   isWhite ? Piece.Black : Piece.White
                 );
                 return (
-                  <ChessBoard
-                    squares={displayedSquares}
-                    selectedSquare={selectedSquare}
-                    legalMoves={viewIndex === -1 && !isSetup ? legalMoves : []} 
-                    lastMove={displayedLastMove}
-                    isFlipped={playerColor === 'black'}
-                    checkSquare={inCheck ? displayedBoardState.kingSquare[kIdx] : -1}
-                    isMate={gameResult === 'checkmate'}
-                    onSquareClick={handleSquareClick}
-                  />
+                    <ChessBoard
+                      squares={displayedSquares}
+                      selectedSquare={selectedSquare}
+                      legalMoves={viewIndex === -1 && !isSetup ? legalMoves : []} 
+                      lastMove={displayedLastMove}
+                      isFlipped={playerColor === 'black'}
+                      pieceTheme={pieceTheme}
+                      checkSquare={inCheck ? displayedBoardState.kingSquare[kIdx] : -1}
+                      isMate={gameResult === 'checkmate'}
+                      onSquareClick={handleSquareClick}
+                    />
                 );
               })()}
             </div>

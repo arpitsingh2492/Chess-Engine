@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { Piece, Move } from '../types';
-import { PieceArt } from './PieceArt';
 import '../styles/board.css';
 
 interface ChessBoardProps {
@@ -13,6 +12,7 @@ interface ChessBoardProps {
   legalMoves: Move[];
   lastMove: Move | null;
   isFlipped: boolean;
+  pieceTheme?: string;
   checkSquare?: number;
   isMate?: boolean;
   onSquareClick: (squareIndex: number) => void;
@@ -26,6 +26,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   legalMoves,
   lastMove,
   isFlipped,
+  pieceTheme = 'cburnett',
   checkSquare = -1,
   isMate = false,
   onSquareClick
@@ -107,7 +108,14 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                     type === Piece.Queen ? 'Q' :
                     type === Piece.King ? 'K' : '';
     const key = (isWhite ? 'w' : 'b') + typeStr;
-    return PieceArt[key] || null;
+    return (
+      <img 
+        src={`/pieces/${pieceTheme}/${key}.svg`} 
+        alt={key} 
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+        draggable={false} 
+      />
+    );
   };
 
   const targetSquares = new Set<number>();

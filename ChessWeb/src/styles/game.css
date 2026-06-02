@@ -975,3 +975,45 @@ input:checked + .slider:before { transform: translateX(18px); background-color: 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes thinking-dots { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 @keyframes piece-appear { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.theme-selectors {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+}
+
+.piece-theme-switcher {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-surface);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-subtle);
+}
+
+.piece-swatch {
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.piece-swatch:hover {
+  transform: scale(1.1);
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.piece-swatch.active {
+  border-color: var(--accent-green);
+  background: rgba(98, 153, 36, 0.15);
+  box-shadow: 0 0 8px rgba(98, 153, 36, 0.3);
+}
+
