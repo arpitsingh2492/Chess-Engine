@@ -39,7 +39,7 @@ export const GamePage: React.FC = () => {
   const [lastMove, setLastMove] = useState<Move | null>(null);
   const [moveHistory, setMoveHistory] = useState<GameHistoryEntry[]>([]);
   const [playerColor, setPlayerColor] = useState<'white' | 'black'>('white');
-  const [boardTheme, setBoardTheme] = useState<BoardTheme>('pure');
+  const [boardTheme, setBoardTheme] = useState<BoardTheme>('cream');
   const [botLevel, setBotLevel] = useState<BotLevel>('1500');
 
   // App state
@@ -393,7 +393,11 @@ export const GamePage: React.FC = () => {
       ((playerColor === 'white' && Piece.isWhite(piece)) || (playerColor === 'black' && Piece.isBlack(piece)));
 
     if (isFriendly) {
-      setSelectedSquare(squareIndex);
+      if (selectedSquare === squareIndex) {
+        setSelectedSquare(-1);
+      } else {
+        setSelectedSquare(squareIndex);
+      }
       return;
     }
 

@@ -92,29 +92,23 @@ export const LandingPage: React.FC = () => {
         <section className="features-section">
           <div className="features-grid">
             <div className="feature-card">
-              <span className="feature-card-icon">⚡</span>
-              <h3>C++ & WebAssembly Speed</h3>
+              <h3>Fast performance</h3>
               <p>
-                Calculates over 500,000 nodes per second natively in the browser.
-                The heavy lifting is completely offloaded to WebAssembly.
+                The engine runs right in your browser using WebAssembly. It can process over half a million chess positions every second, so you get quick and responsive moves.
               </p>
             </div>
 
             <div className="feature-card">
-              <span className="feature-card-icon">📊</span>
-              <h3>Real-Time Analysis</h3>
+              <h3>Live analysis</h3>
               <p>
-                Toggle the analysis bar to see the evaluation score and best variation for
-                every move in your game — just like Lichess, powered by Astra.
+                You can turn on the analysis mode while you play. It shows you the engine's evaluation and suggests the best lines for your current position.
               </p>
             </div>
 
             <div className="feature-card">
-              <span className="feature-card-icon">🧠</span>
-              <h3>ML & Deep Learning</h3>
+              <h3>Smart evaluation</h3>
               <p>
-                Designed with a robust architecture to easily integrate deep neural networks 
-                (DNNs) and machine learning heuristics for superior position evaluation.
+                The engine uses machine learning to understand the board better. It combines classic search techniques with modern neural networks to figure out the best move.
               </p>
             </div>
           </div>
