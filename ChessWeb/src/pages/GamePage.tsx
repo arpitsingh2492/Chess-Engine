@@ -553,8 +553,7 @@ export const GamePage: React.FC = () => {
                 value={boardTheme} 
                 onChange={(e) => setBoardTheme(e.target.value as BoardTheme)}
               >
-                <option value="pure">Pure</option>
-                <option value="cream">Cream</option>
+                <option value="cream">Default</option>
                 <option value="wood">Wood</option>
                 <option value="blue">Blue</option>
                 <option value="green">Green</option>
@@ -574,8 +573,7 @@ export const GamePage: React.FC = () => {
                 <option value="cburnett">Standard</option>
                 <option value="merida">Merida</option>
                 <option value="alpha">Alpha</option>
-                <option value="cheq">Checkers</option>
-                <option value="none">Blindfold (None)</option>
+                <option value="shapes">Checkers</option>
               </select>
             </div>
           </div>

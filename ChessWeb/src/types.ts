@@ -71,5 +71,5 @@ export interface EngineResult {
 }
 
 export type BotLevel = '800' | '1500' | '2500';
-export type BoardTheme = 'pure' | 'cream' | 'wood' | 'blue' | 'green' | 'grey' | 'purple';
-export type PieceTheme = 'cburnett' | 'merida' | 'alpha' | 'cheq' | 'none';
+export type BoardTheme = 'cream' | 'wood' | 'blue' | 'green' | 'grey' | 'purple';
+export type PieceTheme = 'cburnett' | 'merida' | 'alpha' | 'shapes';
