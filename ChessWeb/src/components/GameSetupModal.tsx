@@ -10,9 +10,9 @@ interface GameSetupModalProps {
 }
 
 const LEVELS: { value: BotLevel; label: string; desc: string; emoji: string }[] = [
-  { value: '800',  label: '800',  desc: 'Beginner',  emoji: '🌱' },
-  { value: '1500', label: '1500', desc: 'Intermediate', emoji: '⚔️' },
-  { value: '2500', label: '2500', desc: 'Master',    emoji: '👑' },
+  { value: '800',  label: '800',  desc: 'Astra 1',  emoji: '🌱' },
+  { value: '1500', label: '1500', desc: 'Astra 2', emoji: '⚔️' },
+  { value: '2500', label: '2500', desc: 'Astra 3',    emoji: '👑' },
 ];
 
 export const GameSetupModal: React.FC<GameSetupModalProps> = ({ onStartGame }) => {
