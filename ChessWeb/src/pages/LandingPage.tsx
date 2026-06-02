@@ -6,14 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 export const LandingPage: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
-  const TECH_STATS = [
-    { label: 'Core Engine', value: 'C++17 & WebAssembly' },
-    { label: 'Evaluation Model', value: 'ML/DL Tuned Heuristics' },
-    { label: 'Search Algorithm', value: 'Alpha-Beta Pruning' },
-    { label: 'Performance', value: '500,000+ Nodes/Sec' },
-    { label: 'Move Ordering', value: 'MVV-LVA Heuristic' },
-    { label: 'Architecture', value: 'WASM + Web Workers' },
-  ];
+  // Sections removed as requested
 
   return (
     <div className="landing-page">
@@ -29,9 +22,8 @@ export const LandingPage: React.FC = () => {
 
         {/* ── HERO ── */}
         <section className="hero-section">
-          <div className="engine-badge">
-            <span className="engine-badge-dot" />
-            Chess Engine · C++ & WebAssembly · ML/DL · Open Source
+          <div style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '10px' }}>
+            Chess Engine
           </div>
 
           <div className="engine-logo-static">
@@ -72,45 +64,6 @@ export const LandingPage: React.FC = () => {
               </svg>
               View Source
             </a>
-          </div>
-        </section>
-
-        {/* ── TECH SPEC GRID ── */}
-        <section className="tech-grid-section">
-          <h2 className="section-label">Under the Hood</h2>
-          <div className="tech-grid">
-            {TECH_STATS.map((s) => (
-              <div className="tech-card" key={s.label}>
-                <div className="tech-card-value">{s.value}</div>
-                <div className="tech-card-label">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── FEATURES ── */}
-        <section className="features-section">
-          <div className="features-grid">
-            <div className="feature-card">
-              <h3>Fast performance</h3>
-              <p>
-                The engine runs right in your browser using WebAssembly. It can process over half a million chess positions every second, so you get quick and responsive moves.
-              </p>
-            </div>
-
-            <div className="feature-card">
-              <h3>Live analysis</h3>
-              <p>
-                You can turn on the analysis mode while you play. It shows you the engine's evaluation and suggests the best lines for your current position.
-              </p>
-            </div>
-
-            <div className="feature-card">
-              <h3>Smart evaluation</h3>
-              <p>
-                The engine uses machine learning to understand the board better. It combines classic search techniques with modern neural networks to figure out the best move.
-              </p>
-            </div>
           </div>
         </section>
 
