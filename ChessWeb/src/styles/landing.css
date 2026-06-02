@@ -107,13 +107,13 @@
 }
 
 .engine-logo-static {
-  width: 100px; height: 100px;
+  width: 150px; height: 150px;
   color: var(--accent-green);
   margin-bottom: 8px;
 }
 
 .hero-title {
-  font-size: 4rem;
+  font-size: 6rem;
   font-weight: 800;
   margin: 0;
   letter-spacing: -1px;

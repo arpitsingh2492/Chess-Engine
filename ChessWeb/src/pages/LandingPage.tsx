@@ -38,12 +38,7 @@ export const LandingPage: React.FC = () => {
             <span className="hero-title-chess"> Chess</span>
           </h1>
 
-          <div className="hero-tagline">
-            <span>C++17</span>
-            <span>WebAssembly</span>
-            <span>Alpha-Beta Pruning</span>
-            <span>Deep Learning</span>
-          </div>
+
 
           <div className="hero-cta-row">
             <Link to="/play" className="play-btn" id="play-now-btn">
