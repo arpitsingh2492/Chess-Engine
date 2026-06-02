@@ -68,7 +68,18 @@ export const LandingPage: React.FC = () => {
         </section>
 
         {/* ── QUOTE SECTION ── */}
-        <section style={{ textAlign: 'center', marginTop: '80px', padding: '0 20px', maxWidth: '600px', margin: '80px auto 40px auto' }}>
+        <section style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          textAlign: 'center', 
+          padding: '0 20px', 
+          maxWidth: '600px', 
+          width: '100%', 
+          margin: '0 auto' 
+        }}>
           <blockquote style={{ 
             fontSize: '1.6rem', 
             fontStyle: 'italic', 
